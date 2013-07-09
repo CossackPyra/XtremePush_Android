@@ -1,0 +1,108 @@
+<h1>How to include the library</h1>
+
+<ol>
+<li><p>Add XtremePush_lib as library project to your project.</p></li>
+<li><p>In the main activity initialize the PushConnector fragment. "Main activity" it's an activity on which you want alerts appear:</p>
+
+<pre><code>private PushConnector pushConnector;
+
+
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+   super.onCreate(savedInstanceState);
+   setContentView(R.layout.activity_main); // Put here your xml layout. activity_main here just for example
+
+
+   pushConnector = PushConnector.initPushConnector(getSupportFragmentManager(), SERVER_URL, APP_KEY, SENDER_ID);
+}
+</code></pre>
+
+<p>Where:</p>
+
+<ul>
+<li>SERVER_URL - our server url</li>
+<li>APP_ID - our server application id</li>
+<li>SENDER_ID - ProjectID you receive from Google GCM</li>
+</ul></li>
+<li><p>Add these lines to the same activity:</p>
+
+<pre><code>@Override
+protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    pushConnector.onActivityResult(requestCode, resultCode, data);
+}
+
+
+@Override
+protected void onNewIntent(Intent intent) {
+    super.onNewIntent(intent);
+    pushConnector.onNewIntent(intent);
+}
+</code></pre></li>
+<li><p>Add these lines your AndroidManifest.xml inside <manifest</manifest>. Replace PACKAGE_NAME with the package name for your application:
+    <!-- GCM connects to Google Services. -->
+    <uses-permission android:name="android.permission.INTERNET" /></p>
+
+<pre><code>&lt;!-- GCM requires a Google account. --&gt;
+&lt;uses-permission android:name="android.permission.GET_ACCOUNTS" /&gt;
+
+
+&lt;!-- Keeps the processor from sleeping when a message is received. --&gt;
+&lt;uses-permission android:name="android.permission.WAKE_LOCK" /&gt;
+
+
+&lt;!-- Other --&gt;
+&lt;uses-permission android:name="android.permission.READ_PHONE_STATE" /&gt;
+&lt;uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /&gt;
+&lt;uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /&gt;
+
+
+&lt;!--
+Creates a custom permission so only this app can receive its messages.
+
+
+NOTE: the permission *must* be called PACKAGE.permission.C2D_MESSAGE,
+      where PACKAGE is the application's package name.
+--&gt;
+&lt;permission
+   android:name="YOUR_PACKAGE.permission.C2D_MESSAGE"
+   android:protectionLevel="signature" /&gt;
+
+
+&lt;uses-permission android:name="YOUR_PACKAGE.permission.C2D_MESSAGE" /&gt;
+
+
+&lt;!-- This app has permission to register and receive data message. --&gt;
+&lt;uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" /&gt;
+</code></pre></li>
+<li><p>Add these lines into <application></application>:</p>
+
+<pre><code>&lt;receiver
+   android:name="com.the_roberto.gcmlib.GCMReceiver"
+   android:permission="com.google.android.c2dm.permission.SEND" &gt;
+   &lt;intent-filter&gt;
+       &lt;action android:name="com.google.android.c2dm.intent.RECEIVE" /&gt;
+       &lt;action android:name="com.google.android.c2dm.intent.REGISTRATION" /&gt;
+       &lt;category android:name="ie.imobile.extremepush.gcmlib" /&gt;
+   &lt;/intent-filter&gt;
+&lt;/receiver&gt;
+
+
+&lt;service android:name="ie.imobile.extremepush.GCMIntentService" /&gt;
+
+
+&lt;receiver android:name="ie.imobile.extremepush.location.ProxymityAlertReceiver" /&gt;
+
+
+&lt;activity
+   android:name="ie.imobile.extremepush.ui.WebViewActivity"
+   android:exported="false" /&gt;
+</code></pre></li>
+</ol>
+
+<h1>How to use hitTag functionality</h1>
+
+<p>To use a <em>hitTag</em> functionality just call <code>pushManager.hitTag(String tag)</code> method:</p>
+
+<pre><code>    pushConnector.hitTag("your_tag_name");
+</code></pre>
