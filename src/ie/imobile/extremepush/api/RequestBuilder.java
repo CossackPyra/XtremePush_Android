@@ -6,6 +6,7 @@ import ie.imobile.extremepush.util.SharedPrefUtils;
 import java.io.UnsupportedEncodingException;
 
 import org.apache.http.entity.StringEntity;
+import org.apache.http.protocol.HTTP;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -50,7 +51,7 @@ public final class RequestBuilder {
 
         if (PushConnector.DEBUG) Log.d(TAG, "EntityForRegistration: " + jsonString);
 
-        return new StringEntity(jsonString);
+        return new StringEntity(jsonString, HTTP.UTF_8);
     }
 
     static StringEntity buildJsonEntityForLocationCheck(String serverRegId, Location location)
@@ -68,7 +69,7 @@ public final class RequestBuilder {
 
         if (PushConnector.DEBUG) Log.d(TAG, "EntityForLocationCheck" + jsonString);
 
-        return new StringEntity(jsonString);
+        return new StringEntity(jsonString, HTTP.UTF_8);
     }
 
     static StringEntity buildJsonEntityForLocationHit(String serverRegId, String locationId)
@@ -82,7 +83,7 @@ public final class RequestBuilder {
 
         if (PushConnector.DEBUG) Log.d(TAG, "EntityForLocationHit" + jsonString);
 
-        return new StringEntity(jsonString);
+        return new StringEntity(jsonString, HTTP.UTF_8);
     }
 
     static StringEntity buildJsonEntityForPushAction(String serverRegId, String pushActionId) throws JSONException,
@@ -96,7 +97,7 @@ public final class RequestBuilder {
 
         if (PushConnector.DEBUG) Log.d(TAG, "EntityForPushAction" + jsonString);
 
-        return new StringEntity(jsonString);
+        return new StringEntity(jsonString, HTTP.UTF_8);
     }
 
     static StringEntity buildJsonEntityForHitTag(String serverRegId, String tag) throws JSONException,
@@ -110,6 +111,6 @@ public final class RequestBuilder {
 
         if (PushConnector.DEBUG) Log.d(TAG, "EntityForHitTag" + jsonString);
 
-        return new StringEntity(jsonString);
+        return new StringEntity(jsonString, HTTP.UTF_8);
     }
 }

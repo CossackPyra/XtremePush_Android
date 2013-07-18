@@ -37,6 +37,7 @@ public final class PushDialogFragment extends DialogFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         pushMessage = (PushMessage) getArguments().getParcelable(EXTRAS_PUSH_MESSAGE);
+        SharedPrefUtils.setLastPushId(getActivity(), pushMessage.pushActionId);
     }
 
     @Override
@@ -55,13 +56,11 @@ public final class PushDialogFragment extends DialogFragment {
                     } else {
                         openUrlInWebView(pushMessage.url);
                     }
-                    SharedPrefUtils.setLastPushId(getActivity(), pushMessage.pushActionId);
                 }
             });
         }
         builder.setNegativeButton(R.string.push_dialog_close, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                SharedPrefUtils.setLastPushId(getActivity(), pushMessage.pushActionId);
             }
         });
         return builder.create();

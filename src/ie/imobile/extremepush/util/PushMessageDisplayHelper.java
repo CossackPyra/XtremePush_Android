@@ -7,12 +7,14 @@ import android.support.v4.app.FragmentManager;
 
 public final class PushMessageDisplayHelper {
 
-    public static void displayPushMessage(Context context, FragmentManager fm, PushMessage pushMessage) {
-        
+    public static void displayPushMessage(Context context, FragmentManager fm, PushMessage pushMessage, boolean isVisible) {
+
         // avoid double showing
         if (pushMessage.pushActionId.equals(SharedPrefUtils.getLastPushId(context))) return;
-        
-        PushDialogFragment fragment = PushDialogFragment.newInstance(pushMessage);
-        fragment.show(fm, null);
+
+        if (isVisible) {
+            PushDialogFragment fragment = PushDialogFragment.newInstance(pushMessage);
+            fragment.show(fm, null);
+        }
     }
 }

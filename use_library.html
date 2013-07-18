@@ -78,12 +78,12 @@ NOTE: the permission *must* be called PACKAGE.permission.C2D_MESSAGE,
 <li><p>Add these lines into <application></application>:</p>
 
 <pre><code>&lt;receiver
-   android:name="com.the_roberto.gcmlib.GCMReceiver"
+   android:name="ie.imobile.extremepush.GCMReceiver"
    android:permission="com.google.android.c2dm.permission.SEND" &gt;
    &lt;intent-filter&gt;
        &lt;action android:name="com.google.android.c2dm.intent.RECEIVE" /&gt;
        &lt;action android:name="com.google.android.c2dm.intent.REGISTRATION" /&gt;
-       &lt;category android:name="ie.imobile.extremepush.gcmlib" /&gt;
+       &lt;category android:name="YOUR_PACKAGE" /&gt;
    &lt;/intent-filter&gt;
 &lt;/receiver&gt;
 

@@ -69,12 +69,12 @@ How to include the library
 4. Add these lines into <application></application>:
 
         <receiver
-           android:name="com.the_roberto.gcmlib.GCMReceiver"
+           android:name="ie.imobile.extremepush.GCMReceiver"
            android:permission="com.google.android.c2dm.permission.SEND" >
            <intent-filter>
                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
-               <category android:name="ie.imobile.extremepush.gcmlib" />
+               <category android:name="YOUR_PACKAGE" />
            </intent-filter>
         </receiver>
 

@@ -52,7 +52,7 @@ public final class PushManager {
             } else if (action.equals(GCMIntentService.ACTION_MESSAGE)) {
                 PushMessage pushMessage = extras.getParcelable(GCMIntentService.EXTRAS_PUSH_MESSAGE);
                 PushMessageDisplayHelper.displayPushMessage(pushConnector.getActivity(), pushConnector.getFragmentManager(),
-                        pushMessage);
+                        pushMessage, pushConnector.isResumed());
                 if (PushConnector.DEBUG) Log.d(TAG, "ReceiveMessage" + pushMessage);
             }
         }
@@ -101,6 +101,7 @@ public final class PushManager {
         filter.addAction(GCMIntentService.ACTION_MESSAGE);
         filter.addAction(GCMIntentService.ACTION_REGISTER_ON_SERVER);
         pushConnector.getActivity().registerReceiver(messageReceiver, filter);
+        onNewIntent(pushConnector.getActivity().getIntent());
     }
 
     void onDetach() {
@@ -115,12 +116,14 @@ public final class PushManager {
 
     void onNewIntent(Intent intent) {
         if (isDestroyed) throw new IllegalStateException("PushManager already destoyed");
+        if (intent == null) return;
+
         Bundle extras = intent.getExtras();
         PushMessage pushMessage;
 
         if (extras != null && (pushMessage = extras.getParcelable(GCMIntentService.EXTRAS_PUSH_MESSAGE)) != null) {
             PushMessageDisplayHelper.displayPushMessage(pushConnector.getActivity(), pushConnector.getFragmentManager(),
-                    pushMessage);
+                    pushMessage, true);
         }
     }
 
@@ -167,7 +170,7 @@ public final class PushManager {
         if (intent != null && (extras = intent.getExtras()) != null
                 && (pushMessage = extras.getParcelable(GCMIntentService.EXTRAS_PUSH_MESSAGE)) != null) {
             PushMessageDisplayHelper.displayPushMessage(pushConnector.getActivity(), pushConnector.getActivity()
-                    .getSupportFragmentManager(), pushMessage);
+                    .getSupportFragmentManager(), pushMessage, pushConnector.isResumed());
         }
     }
 

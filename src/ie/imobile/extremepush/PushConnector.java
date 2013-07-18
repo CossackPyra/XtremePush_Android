@@ -37,7 +37,8 @@ public class PushConnector extends Fragment {
     private String senderId;
     private PushManager pushManager;
 
-    public static PushConnector initPushConnector(FragmentManager fm, String serverUrl, String appKey, String senderId) {
+    public static PushConnector initPushConnector(FragmentManager fm, String serverUrl, String appKey,
+            String senderId) {
         PushConnector pushConnector = (PushConnector) fm.findFragmentByTag(FRAGMENT_TAG);
         if (pushConnector != null) return pushConnector;
 
@@ -114,8 +115,9 @@ public class PushConnector extends Fragment {
 
     private void parseArgs() {
         Bundle args = getArguments();
-        if (args == null) throw new IllegalStateException("You need to create PushConnector trough "
-                + "newInstance(String serverUrl, String appKey, String senderId)");
+        if (args == null)
+            throw new IllegalStateException("You need to create PushConnector trough "
+                    + "newInstance(String serverUrl, String appKey, String senderId)");
 
         this.serverUrl = args.getString(EXTRAS_SERVER_URL);
         this.appKey = args.getString(EXTRAS_APP_KEY);
@@ -152,4 +154,5 @@ public class PushConnector extends Fragment {
     public ArrayList<LocationItem> produceLocations() {
         return LocationsResponseHandler.getLastKnownLocations();
     }
+
 }
