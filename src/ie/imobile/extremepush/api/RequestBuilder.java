@@ -2,8 +2,10 @@ package ie.imobile.extremepush.api;
 
 import ie.imobile.extremepush.PushConnector;
 import ie.imobile.extremepush.util.SharedPrefUtils;
+import ie.imobile.extremepush.util.TimeUtils;
 
 import java.io.UnsupportedEncodingException;
+import java.util.TimeZone;
 
 import org.apache.http.entity.StringEntity;
 import org.apache.http.protocol.HTTP;
@@ -46,6 +48,7 @@ public final class RequestBuilder {
         jsonEntity.put("environment", "production");
         jsonEntity.put("country", context.getResources().getConfiguration().locale.getCountry());
         jsonEntity.put("network", carrierName);
+        jsonEntity.put("timezone", TimeUtils.getUtcTimeZone());
 
         String jsonString = jsonEntity.toString();
 
