@@ -15,7 +15,11 @@ public final class SharedPrefUtils {
     private static final String SHARED_OLD_LOCATIONS = "old_locations";
     private static final String SHARED_MAIN_ACTIVITY = "main_activity";
     private static final String SHARED_LAST_PUSH_ID = "last_push_id";
+    private static final String SHARED_DEVICE_FINGERPING = "dev_finger";
 
+    private static final String SHARED_SESSION_START = "start_session";
+    private static final String SHARED_SESSION_DURATION = "duration_session";
+    
     public SharedPrefUtils() {
     }
 
@@ -30,6 +34,19 @@ public final class SharedPrefUtils {
         SharedPreferences prefs = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
         return prefs.getString(SHARED_FINGERPRINT, null);
     }
+    
+
+    public static void setDeviceFingerpirnt(Context context, String fingerprint) {
+        SharedPreferences prefs = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(SHARED_DEVICE_FINGERPING, fingerprint);
+        editor.commit();
+    }
+
+    public static String getDeviceFingerprint(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        return prefs.getString(SHARED_DEVICE_FINGERPING, null);
+    }
 
     public static void setServerDeviceId(Context context, String serverDeviceId) {
         SharedPreferences prefs = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
@@ -40,7 +57,7 @@ public final class SharedPrefUtils {
 
     public static String getServerDeviceId(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
-        return prefs.getString(SHARED_SERVER_SERVER_DEVICE_ID, null);
+        return prefs.getString(SHARED_SERVER_SERVER_DEVICE_ID, "");
     }
 
     public static void setAppKey(Context context, String appKey) {
@@ -114,5 +131,30 @@ public final class SharedPrefUtils {
         SharedPreferences prefs = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
         return prefs.getString(SHARED_LAST_PUSH_ID, null);
     }
+    
+    public static void setLastDurationtSessionTime(Context context, String time) {
+        SharedPreferences prefs = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(SHARED_SESSION_DURATION, time);
+        editor.commit();
+    }
 
+    public static String getLastDurationtSessionTime(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        return prefs.getString(SHARED_SESSION_DURATION, "");
+    }
+    
+    public static void setLastStartSessionTime(Context context, String time) {
+        SharedPreferences prefs = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(SHARED_SESSION_START, time);
+        editor.commit();
+    }
+
+    public static String getLastStartSessionTime(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        return prefs.getString(SHARED_SESSION_START, "");
+    }
+    
+    
 }

@@ -1,20 +1,18 @@
 package ie.imobile.extremepush.fragment;
 
-import com.loopj.android.http.AsyncHttpResponseHandler;
-
 import ie.imobile.extremepush.R;
 import ie.imobile.extremepush.api.LogResponseHandler;
-import ie.imobile.extremepush.api.RestClient;
+import ie.imobile.extremepush.api.XtremeRestClient;
 import ie.imobile.extremepush.api.model.PushMessage;
-import ie.imobile.extremepush.ui.WebViewActivity;
 import ie.imobile.extremepush.util.SharedPrefUtils;
+import ie.imobile.extremepush.util.UrlUtils;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+
+import com.loopj.android.http.AsyncHttpResponseHandler;
 
 public final class PushDialogFragment extends DialogFragment {
 
@@ -48,13 +46,13 @@ public final class PushDialogFragment extends DialogFragment {
         if (pushMessage.url != null) {
             builder.setPositiveButton(R.string.push_dialog_view, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
-                    RestClient.hitUrl(getActivity(), actionUrlResponseHandler,
+                    XtremeRestClient.hitUrl(getActivity(), actionUrlResponseHandler,
                             SharedPrefUtils.getServerDeviceId(getActivity()), pushMessage.pushActionId);
 
                     if (pushMessage.openInBrowser) {
-                        openUrlInBrowser(pushMessage.url);
+                        UrlUtils.openUrlInBrowser(getActivity(), pushMessage.url);
                     } else {
-                        openUrlInWebView(pushMessage.url);
+                        UrlUtils.openUrlInWebView(getActivity(), pushMessage.url);
                     }
                 }
             });
@@ -66,13 +64,4 @@ public final class PushDialogFragment extends DialogFragment {
         return builder.create();
     }
 
-    private void openUrlInBrowser(String url) {
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-        getActivity().startActivity(intent);
-    }
-
-    private void openUrlInWebView(String url) {
-        Intent intent = new Intent(getActivity(), WebViewActivity.class).putExtra(WebViewActivity.EXTRAS_URL, url);
-        getActivity().startActivity(intent);
-    }
 }

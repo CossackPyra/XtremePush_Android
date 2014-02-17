@@ -18,6 +18,8 @@ public final class LogResponseHandler extends AsyncHttpResponseHandler {
 
     public void onSuccess(int arg0, String response) {
         if (PushConnector.DEBUG) Log.d(tag, "Success: " + response);
+        
+        
     }
 
     public void onFailure(Throwable arg0, String error) {

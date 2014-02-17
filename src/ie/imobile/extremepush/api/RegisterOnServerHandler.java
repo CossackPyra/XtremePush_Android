@@ -29,14 +29,18 @@ public final class RegisterOnServerHandler extends AsyncHttpResponseHandler {
     public void onSuccess(int arg0, String response) {
         final Context context = contextHolder.get();
         if (context == null) return;
+        if (PushConnector.DEBUG_LOG) {
+        	LogEventsUtils.sendLogTextMessage(context, "Response:" + response );
+        }
+
 
         if (PushConnector.DEBUG) Log.d(TAG, "Response: " + response);
 
-        String serverRegId = ResponseParser.parseRegisterOnServerResponse(response);
+        String serverRegId = ResponseParser.parseRegisterOnServerResponse(response, context);
 
         if (serverRegId != null) {
             if (PushConnector.DEBUG) Log.d(TAG, " RegId: " + serverRegId);
-            if (PushConnector.DEBUG) LogEventsUtils.sendLogTextMessage(context, "Registred on server with id: "
+            if (PushConnector.DEBUG_LOG) LogEventsUtils.sendLogTextMessage(context, "Registred on server with id: "
                     + serverRegId);
 
             GCMRegistrar.setRegisteredOnServer(context, true);
@@ -45,12 +49,13 @@ public final class RegisterOnServerHandler extends AsyncHttpResponseHandler {
 
                 @Override
                 public void onCoarseLocationReceived(Location location) {
-                    RestClient.locationCheck(new LocationsResponseHandler(context),
+                    XtremeRestClient.locationCheck(new LocationsResponseHandler(context),
                             SharedPrefUtils.getServerDeviceId(context), location);
                 }
             });
         } else {
             if (PushConnector.DEBUG) Log.d(TAG, context.getString(R.string.server_register_error));
+            
             GCMRegistrar.unregister(context);
             SharedPrefUtils.setServerDeviceId(context, null);
         }
@@ -61,6 +66,7 @@ public final class RegisterOnServerHandler extends AsyncHttpResponseHandler {
         if (context == null) return;
 
         if (PushConnector.DEBUG) Log.d(TAG, context.getString(R.string.server_register_error) + ":" + error);
+        if (PushConnector.DEBUG_LOG) LogEventsUtils.sendLogTextMessage(context, context.getString(R.string.server_register_error) + ":" + error);
         GCMRegistrar.unregister(context);
     }
 

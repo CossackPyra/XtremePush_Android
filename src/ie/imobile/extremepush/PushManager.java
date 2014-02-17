@@ -1,25 +1,41 @@
 package ie.imobile.extremepush;
 
+import ie.imobile.extremepush.api.EventResponseHandler;
 import ie.imobile.extremepush.api.LocationsResponseHandler;
 import ie.imobile.extremepush.api.LogResponseHandler;
 import ie.imobile.extremepush.api.RegisterOnServerHandler;
-import ie.imobile.extremepush.api.RestClient;
+import ie.imobile.extremepush.api.XtremeRestClient;
 import ie.imobile.extremepush.api.model.PushMessage;
+import ie.imobile.extremepush.location.LocationReceiver;
 import ie.imobile.extremepush.util.CoarseLocationProvider;
 import ie.imobile.extremepush.util.CoarseLocationProvider.CoarseLocationListener;
+import ie.imobile.extremepush.util.LibVersion;
 import ie.imobile.extremepush.util.LocationAccessHelper;
 import ie.imobile.extremepush.util.PushMessageDisplayHelper;
 import ie.imobile.extremepush.util.SharedPrefUtils;
+import ie.imobile.extremepush.util.TimeUtils;
+
+import java.util.Locale;
+
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.Location;
+import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 import android.util.Log;
 
+import com.commonsware.cwac.locpoll.LocationPoller;
+import com.commonsware.cwac.locpoll.LocationPollerParameter;
 import com.google.android.gcm.GCMRegistrar;
+import com.loopj.android.http.AsyncHttpResponseHandler;
 
 public final class PushManager {
 
@@ -34,6 +50,8 @@ public final class PushManager {
     private String regId;
     private boolean isConfigsUpdated;
     private boolean isDestroyed;
+    
+    int alarmTimeout = 60*1;
 
     private LocationAccessHelper locationAccessHelper;
 
@@ -45,14 +63,17 @@ public final class PushManager {
             String action = intent.getAction();
 
             if (PushConnector.DEBUG) Log.d(TAG, "Receive broadcast");
+
             if (action.equals(GCMIntentService.ACTION_REGISTER_ON_SERVER)) {
-                RestClient.registerOnServer(pushConnector.getActivity(),
+                XtremeRestClient.registerOnServer(pushConnector.getActivity(),
                         new RegisterOnServerHandler(pushConnector.getActivity()),
                         extras.getString(GCMIntentService.EXTRAS_REG_ID));
             } else if (action.equals(GCMIntentService.ACTION_MESSAGE)) {
                 PushMessage pushMessage = extras.getParcelable(GCMIntentService.EXTRAS_PUSH_MESSAGE);
-                PushMessageDisplayHelper.displayPushMessage(pushConnector.getActivity(), pushConnector.getFragmentManager(),
-                        pushMessage, pushConnector.isResumed());
+                boolean fromNotification = extras.getBoolean(GCMIntentService.EXTRAS_FROM_NOTIFICATION);
+                PushMessageDisplayHelper.displayPushMessage(pushConnector.getActivity(),
+                		pushConnector.getFragmentManager(),
+                        pushMessage, pushConnector.isResumed(), fromNotification);
                 if (PushConnector.DEBUG) Log.d(TAG, "ReceiveMessage" + pushMessage);
             }
         }
@@ -77,13 +98,37 @@ public final class PushManager {
 
         initHelpers(pushConnector.getActivity());
 
-        checkIntent();
+//        checkIntent();
 
-        setupGCM();
-
+//        setupGCM();
+        
         locationAccessHelper.checkLocationProviders();
     }
-
+    
+    public static String createFingerpring(Context context) {
+        TelephonyManager tm = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
+        String countryCode = tm.getSimCountryIso();
+        String carrierName = tm.getNetworkOperatorName();
+    	return generateConfigFingerprint(android.os.Build.BRAND, 
+	        		Build.VERSION.SDK_INT,
+	        		android.os.Build.MODEL,
+	        		context.getResources().getConfiguration().locale.getCountry(),
+	        		carrierName,
+	        		LibVersion.VER,
+	        		TimeUtils.getUtcTimeZone(),
+	        		countryCode,
+	        		Locale.getDefault().getISO3Language());
+    }
+    
+    void onStart() {
+    	setupGCM();
+    	checkConf(pushConnector.getActivity());
+    }
+    
+    void onResume() {
+//    	checkConf(pushConnector.getActivity());
+    }
+    
     void onDestroy() {
         if (PushConnector.DEBUG) Log.d(TAG, "onDestroy");
         isDestroyed = true;
@@ -119,28 +164,45 @@ public final class PushManager {
         if (intent == null) return;
 
         Bundle extras = intent.getExtras();
-        PushMessage pushMessage;
 
-        if (extras != null && (pushMessage = extras.getParcelable(GCMIntentService.EXTRAS_PUSH_MESSAGE)) != null) {
-            PushMessageDisplayHelper.displayPushMessage(pushConnector.getActivity(), pushConnector.getFragmentManager(),
-                    pushMessage, true);
-        }
+        if (intent == null || (extras = intent.getExtras()) == null) return;
+
+        PushMessage pushMessage = extras.getParcelable(GCMIntentService.EXTRAS_PUSH_MESSAGE);
+        boolean fromNotification = extras.getBoolean(GCMIntentService.EXTRAS_FROM_NOTIFICATION);
+
+        PushMessageDisplayHelper.displayPushMessage(pushConnector.getActivity(), pushConnector.getActivity()
+                .getSupportFragmentManager(), pushMessage, pushConnector.isResumed(), fromNotification);
     }
 
     void hitTag(String tag) {
         if (isDestroyed) throw new IllegalStateException("PushManager already destoyed");
-        RestClient.hitTag(pushConnector.getActivity(), new LogResponseHandler("hitTag"),
+        XtremeRestClient.hitTag(pushConnector.getActivity(), new LogResponseHandler("hitTag"),
                 SharedPrefUtils.getServerDeviceId(pushConnector.getActivity()), tag);
+    }
+    
+    void hitImpression(String tag) {
+        if (isDestroyed) throw new IllegalStateException("PushManager already destoyed");
+        XtremeRestClient.hitImpression(pushConnector.getActivity(), new LogResponseHandler("hitImpression"),
+                SharedPrefUtils.getServerDeviceId(pushConnector.getActivity()), tag);
+    }
+    
+    void getPushlist(String offset, String limit) {
+        if (isDestroyed) throw new IllegalStateException("PushManager already destoyed");
+        XtremeRestClient.hitPushList(pushConnector.getActivity(),
+        		new EventResponseHandler(pushConnector.getActivity()), 
+        		SharedPrefUtils.getServerDeviceId(pushConnector.getActivity()), offset, limit);
     }
 
     private void updateConfigs(Activity activity, String serverUrl, String appKey, String senderId) {
         SharedPrefUtils.setAppKey(activity, appKey);
         SharedPrefUtils.setSenderId(activity, senderId);
-        SharedPrefUtils.setServerUrl(activity, serverUrl);
+        if (TextUtils.isEmpty(SharedPrefUtils.getServerUrl(activity))) {
+        	SharedPrefUtils.setServerUrl(activity, serverUrl);
+        }
     }
 
     private boolean isConfigsUpdated() {
-        Activity activity = pushConnector.getActivity();
+        final Activity activity = pushConnector.getActivity();
 
         String newFingerprint = generateConfigFingerprint(appKey, senderId, serverUrl);
         String oldFingerprint = SharedPrefUtils.getConfigsFingerprint(activity);
@@ -165,17 +227,43 @@ public final class PushManager {
     private void checkIntent() {
         Intent intent = pushConnector.getActivity().getIntent();
         Bundle extras;
-        PushMessage pushMessage;
 
-        if (intent != null && (extras = intent.getExtras()) != null
-                && (pushMessage = extras.getParcelable(GCMIntentService.EXTRAS_PUSH_MESSAGE)) != null) {
-            PushMessageDisplayHelper.displayPushMessage(pushConnector.getActivity(), pushConnector.getActivity()
-                    .getSupportFragmentManager(), pushMessage, pushConnector.isResumed());
-        }
+        if (intent == null || (extras = intent.getExtras()) == null) return;
+
+        PushMessage pushMessage = extras.getParcelable(GCMIntentService.EXTRAS_PUSH_MESSAGE);
+        boolean fromNotification = extras.getBoolean(GCMIntentService.EXTRAS_FROM_NOTIFICATION);
+
+        PushMessageDisplayHelper.displayPushMessage(pushConnector.getActivity(), pushConnector.getActivity()
+                .getSupportFragmentManager(), pushMessage, pushConnector.isResumed(), fromNotification);
     }
 
+    public String getGCMTokken() {
+    	return regId;
+    }
+    
+    public String getDeviceID() {
+    	return SharedPrefUtils.getServerDeviceId(pushConnector.getActivity().getApplicationContext());
+    }
+    
+    private void checkConf(final Context appContext) {
+        if (!TextUtils.equals(createFingerpring(appContext), SharedPrefUtils.getDeviceFingerprint(appContext))) {
+            if (PushConnector.DEBUG) Log.d(TAG, "Device fingerprint update");
+            final String devicefinferpring = createFingerpring(appContext);
+            XtremeRestClient.hitDeviceUpdate(appContext, new AsyncHttpResponseHandler() {
+
+				@Override
+				public void onSuccess(String arg0) {
+					super.onSuccess(arg0);
+		            SharedPrefUtils.setDeviceFingerpirnt(appContext, devicefinferpring);
+				}
+            	
+            },
+            getGCMTokken());
+        }
+    }
+    
     private void setupGCM() {
-        Activity activity = pushConnector.getActivity();
+        final Activity activity = pushConnector.getActivity();
         final Context appContext = activity.getApplicationContext();
 
         GCMRegistrar.checkDevice(appContext);
@@ -184,25 +272,43 @@ public final class PushManager {
         regId = GCMRegistrar.getRegistrationId(appContext);
         if (PushConnector.DEBUG) Log.d(TAG, "GCM id:" + regId);
 
-        if (regId.length() == 0) {
+        if (!GCMRegistrar.isRegistered(appContext)) {
             GCMRegistrar.register(appContext, senderId);
         } else {
             if (GCMRegistrar.isRegisteredOnServer(appContext) && !isConfigsUpdated) {
                 if (PushConnector.DEBUG) Log.d(TAG, "Device is already registered on server");
-                CoarseLocationProvider.requestCoarseLocation(activity, new CoarseLocationListener() {
 
+                CoarseLocationProvider.requestCoarseLocation(activity, new CoarseLocationListener() {
                     @Override
                     public void onCoarseLocationReceived(Location location) {
-                        if (PushConnector.DEBUG) Log.d(TAG, "Coarse location received:" + location.toString());
-                        RestClient.locationCheck(new LocationsResponseHandler(appContext),
+                        if (PushConnector.DEBUG && location != null) Log.d(TAG, "Coarse location received:" + location.toString() 
+                        		+ " with device id: " + SharedPrefUtils.getServerDeviceId(appContext));
+                        XtremeRestClient.locationCheck(new LocationsResponseHandler(appContext),
                                 SharedPrefUtils.getServerDeviceId(appContext), location);
                     }
                 });
             } else {
                 if (PushConnector.DEBUG) Log.d(TAG, "Register on server from PushManager with regId: " + regId);
-                RestClient.registerOnServer(appContext, new RegisterOnServerHandler(appContext), regId);
+                XtremeRestClient.registerOnServer(appContext, new RegisterOnServerHandler(appContext), regId);
+                String devicefinferpring = createFingerpring(appContext);
+                SharedPrefUtils.setDeviceFingerpirnt(appContext, devicefinferpring);
+                
             }
         }
+        
+        final AlarmManager mgr=(AlarmManager)appContext.getSystemService(Context.ALARM_SERVICE);
+        final Intent i = new Intent(appContext, LocationPoller.class);
+        final Bundle bundle = new Bundle();
+        final LocationPollerParameter parameter = new LocationPollerParameter(bundle);
+	        parameter.setIntentToBroadcastOnCompletion(new Intent(appContext, LocationReceiver.class));
+	        parameter.setProviders(new String[] {LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER});
+        i.putExtras(bundle);
+
+        final PendingIntent pi=PendingIntent.getBroadcast(appContext, 0, i, 0);
+		mgr.setRepeating(AlarmManager.RTC_WAKEUP,
+                                            System.currentTimeMillis()+10000,
+                                            1000*60*5,
+                                            pi);
     }
 
     private static String generateConfigFingerprint(Object... configs) {

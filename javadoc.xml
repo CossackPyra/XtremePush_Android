@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="javadoc" >
+
+    <target name="javadoc" >
+
+        <javadoc
+            access="public"
+            author="true"
+            classpath="../XtremePush_src/deps/google-play-services_lib/libs/google-play-services.jar;
+            libs/gcm.jar;libs/android-async-http-1.4.3.jar;
+            libs/otto-1.3.4.jar;
+            D:\soft\android-sdks\platforms\android-17\android.jar;
+            ../XtremePush_src/deps/google-play-services_lib/bin/google-play-services_lib.jar;
+            libs/android-support-v4.jar"
+            destdir="doc"
+            doctitle="Xpush"
+            nodeprecated="false"
+            nodeprecatedlist="false"
+            noindex="false"
+            nonavbar="false"
+            notree="false"
+            packagenames="ie.imobile.extremepush.api.model,ie.imobile.extremepush.ui,ie.imobile.extremepush.location,ie.imobile.extremepush.fragment,ie.imobile.extremepush.api,ie.imobile.extremepush.util"
+            source="1.6"
+            sourcefiles="src/ie/imobile/extremepush/PushManager.java,src/ie/imobile/extremepush/GCMReceiver.java,src/ie/imobile/extremepush/GCMIntentService.java,src/ie/imobile/extremepush/PushConnector.java"
+            sourcepath="gen;src"
+            splitindex="true"
+            use="true"
+            version="true" />
+    </target>
+
+</project>

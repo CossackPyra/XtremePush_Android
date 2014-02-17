@@ -2,7 +2,7 @@ package ie.imobile.extremepush.location;
 
 import ie.imobile.extremepush.PushConnector;
 import ie.imobile.extremepush.api.LogResponseHandler;
-import ie.imobile.extremepush.api.RestClient;
+import ie.imobile.extremepush.api.XtremeRestClient;
 import ie.imobile.extremepush.util.SharedPrefUtils;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -29,7 +29,10 @@ public final class ProxymityAlertReceiver extends BroadcastReceiver {
 
         final Boolean entering = intent.getBooleanExtra(LocationManager.KEY_PROXIMITY_ENTERING, false);
         if (entering) {
-            RestClient.hitLocation(context, hitLocationResponseHandler, SharedPrefUtils.getServerDeviceId(context),
+            XtremeRestClient.hitLocation(context, hitLocationResponseHandler, SharedPrefUtils.getServerDeviceId(context),
+                    locationId);
+        } else {
+            XtremeRestClient.locationExit(context, hitLocationResponseHandler, SharedPrefUtils.getServerDeviceId(context),
                     locationId);
         }
     }

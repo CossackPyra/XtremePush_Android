@@ -7,14 +7,25 @@ import android.support.v4.app.FragmentManager;
 
 public final class PushMessageDisplayHelper {
 
-    public static void displayPushMessage(Context context, FragmentManager fm, PushMessage pushMessage, boolean isVisible) {
+    public static void displayPushMessage(Context context, FragmentManager fm, PushMessage pushMessage, boolean isVisible,
+            boolean fromNotification) {
 
         // avoid double showing
         if (pushMessage.pushActionId.equals(SharedPrefUtils.getLastPushId(context))) return;
 
-        if (isVisible) {
-            PushDialogFragment fragment = PushDialogFragment.newInstance(pushMessage);
-            fragment.show(fm, null);
-        }
+    	if (fromNotification && pushMessage.url != null) {
+    		SharedPrefUtils.setLastPushId(context, pushMessage.pushActionId);
+    		if (pushMessage.openInBrowser) {
+    			UrlUtils.openUrlInBrowser(context, pushMessage.url);
+        	} else {
+        		UrlUtils.openUrlInWebView(context, pushMessage.url);
+        	}	
+    	} else {
+	        if (!isVisible) {
+	            PushDialogFragment fragment = PushDialogFragment.newInstance(pushMessage);
+	            fragment.show(fm, null);
+	        } 
+    	}
+        
     }
 }

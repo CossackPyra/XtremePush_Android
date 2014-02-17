@@ -32,54 +32,62 @@ public final class LocationsResponseHandler extends AsyncHttpResponseHandler {
     public void onSuccess(int arg0, String response) {
         Context context = contextHolder.get();
         if (PushConnector.DEBUG) Log.d(TAG, "Locations: " + response);
+        if (PushConnector.DEBUG) Log.d(TAG, "Successfully obtained locations");
         if (context == null) return;
+
+        if (PushConnector.DEBUG_LOG) {
+        	LogEventsUtils.sendLogTextMessage(context, "Successfully obtained locations");
+        	LogEventsUtils.sendLogTextMessage(context, response);
+        }
 
         ArrayList<LocationItem> newLocationsItems = ResponseParser.parseLocations(response);
         ArrayList<LocationItem> oldLocationsItems = null;
 
-        String oldLocations = SharedPrefUtils.getOldLocations(context);
+        final String oldLocations = SharedPrefUtils.getOldLocations(context);
         if (oldLocations != null) {
             oldLocationsItems = ResponseParser.parseLocations(oldLocations);
         }
 
         SharedPrefUtils.setOldLocations(context, response);
 
-        createProxymityAlerts(context, newLocationsItems, oldLocationsItems);
+        createProximityAlerts(context, newLocationsItems, oldLocationsItems);
 
-        if (PushConnector.DEBUG) Log.d(TAG, "Successfully obtained locations");
-        if (PushConnector.DEBUG) LogEventsUtils.sendLogTextMessage(context, "Successfully obtained locations");
 
         lastKnownLocations = newLocationsItems;
         PushConnector.postInEventBus(newLocationsItems);
     }
 
+    @Override
     public void onFailure(Throwable arg0, String arg1) {
         if (PushConnector.DEBUG) Log.d(TAG, "Failed to obtaine locations");
 
         Context context = contextHolder.get();
         if (context == null) return;
         if (PushConnector.DEBUG) LogEventsUtils.sendLogTextMessage(context, "Failed to obtaine locations");
+        if (PushConnector.DEBUG_LOG) LogEventsUtils.sendLogTextMessage(context, "Failed to obtaine locations " + arg1);
     }
 
-    private void createProxymityAlerts(Context context, List<LocationItem> locationsItems,
+    private void createProximityAlerts(Context context, List<LocationItem> locationsItems,
             List<LocationItem> oldLocationsItems) {
         LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 
         if (oldLocationsItems != null) {
             for (LocationItem item : oldLocationsItems) {
                 Intent intent = new Intent(context, ProxymityAlertReceiver.class);
-                intent.putExtra(ProxymityAlertReceiver.EXTRAS_LOCATION_ID, item.id);
-                intent.setAction("action" + item.id);
-                locationManager.removeProximityAlert(PendingIntent.getBroadcast(context, 0, intent,
-                        PendingIntent.FLAG_CANCEL_CURRENT));
+	                intent.putExtra(ProxymityAlertReceiver.EXTRAS_LOCATION_ID, item.id);
+	                intent.setAction("action" + item.id);
+	            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent,
+                        PendingIntent.FLAG_CANCEL_CURRENT);
+                locationManager.removeProximityAlert(pendingIntent);
             }
         }
 
         for (LocationItem item : locationsItems) {
             Intent intent = new Intent(context, ProxymityAlertReceiver.class);
-            intent.putExtra(ProxymityAlertReceiver.EXTRAS_LOCATION_ID, item.id);
-            intent.setAction("action" + item.id);
-            locationManager.addProximityAlert(item.latitude, item.longitude, item.radius, -1, PendingIntent.getBroadcast(
+	            intent.putExtra(ProxymityAlertReceiver.EXTRAS_LOCATION_ID, item.id);
+	            intent.setAction("action" + item.id);
+            locationManager.addProximityAlert(item.latitude, item.longitude, item.radius, -1, 
+            		PendingIntent.getBroadcast(
                     context.getApplicationContext(), 0, intent, PendingIntent.FLAG_CANCEL_CURRENT));
         }
     }

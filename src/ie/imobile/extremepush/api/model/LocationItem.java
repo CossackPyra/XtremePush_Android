@@ -7,4 +7,11 @@ public final class LocationItem {
     public double longitude;
     public float radius;
 
+    @Override
+    public String toString() {
+    	return "id: " + id + " title: " + title
+    			+ " latitude: " + latitude + " longitude " + longitude
+    			+ " radius: " + radius;
+    }
+    
 }

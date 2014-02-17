@@ -4,6 +4,7 @@ import ie.imobile.extremepush.api.LocationsResponseHandler;
 import ie.imobile.extremepush.api.model.LocationItem;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -18,7 +19,7 @@ import com.squareup.otto.Produce;
 
 public class PushConnector extends Fragment {
 
-    private static final String TAG = "PushConnector";
+    private static final String TAG = PushConnector.class.getCanonicalName();
     private static final String FRAGMENT_TAG = "PushConnector";
     private static final String EXTRAS_SERVER_URL = "extras_server_url";
     private static final String EXTRAS_APP_KEY = "extras_app_key";
@@ -29,6 +30,7 @@ public class PushConnector extends Fragment {
     public static final String EXTRAS_EVENT_MESSAGE = "extras_message";
 
     public static boolean DEBUG = true;
+    public static boolean DEBUG_LOG = true;
 
     private static final Bus BUS = new Bus();
 
@@ -37,27 +39,40 @@ public class PushConnector extends Fragment {
     private String senderId;
     private PushManager pushManager;
 
-    public static PushConnector initPushConnector(FragmentManager fm, String serverUrl, String appKey,
-            String senderId) {
+    private static String SERVER_URL = "https://xtremepush.com";
+    
+    public static PushConnector init(FragmentManager fm, String appKey, String GOOGLE_PROJECT_NUMBER) {
         PushConnector pushConnector = (PushConnector) fm.findFragmentByTag(FRAGMENT_TAG);
         if (pushConnector != null) return pushConnector;
-
-        pushConnector = newInstance(serverUrl, appKey, senderId);
+        
+        pushConnector = newInstance(SERVER_URL, appKey, GOOGLE_PROJECT_NUMBER);
 
         FragmentTransaction ft = fm.beginTransaction();
-        ft.add(pushConnector, FRAGMENT_TAG);
+        	ft.add(pushConnector, FRAGMENT_TAG);
         ft.commit();
 
         return pushConnector;
     }
 
+    public static PushConnector init(FragmentManager fm, String appKey, String senderId, String serverUrl) {
+    	if (serverUrl != null) {
+    		SERVER_URL = serverUrl;
+    	}
+        return init(fm, appKey, senderId);
+    }
+    
+    public static PushConnector init(FragmentManager fm, String appKey, String senderId, String serverUrl, boolean debug) {
+        DEBUG_LOG = debug;
+        return init(fm, appKey, senderId, serverUrl);
+    }
+    
     private static PushConnector newInstance(String serverUrl, String appKey, String senderId) {
         PushConnector fragment = new PushConnector();
 
         Bundle args = new Bundle();
-        args.putString(EXTRAS_SERVER_URL, serverUrl);
-        args.putString(EXTRAS_APP_KEY, appKey);
-        args.putString(EXTRAS_SENDER_ID, senderId);
+	        args.putString(EXTRAS_SERVER_URL, serverUrl);
+	        args.putString(EXTRAS_APP_KEY, appKey);
+	        args.putString(EXTRAS_SENDER_ID, senderId);
         fragment.setArguments(args);
 
         return fragment;
@@ -74,6 +89,21 @@ public class PushConnector extends Fragment {
         pushManager.onAttach(activity);
     }
 
+    private String getGCMTokken() {
+    	return pushManager.getGCMTokken();
+    }
+    
+    private String getDeviceID() {
+    	return pushManager.getDeviceID();
+    }
+    
+    public HashMap<String, String> getDeviceInfo() {
+    	HashMap<String, String> infopair = new HashMap<String, String>(2);
+    		infopair.put("deviceToken", getGCMTokken());
+    		infopair.put("XPushDeviceID", getDeviceID());
+    	return infopair;
+    }
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,11 +118,18 @@ public class PushConnector extends Fragment {
         super.onActivityCreated(savedInstanceState);
         pushManager.onActivityCreated(savedInstanceState);
     }
-
+    
+    @Override
+    public void onStart() {
+    	super.onStart();
+    	pushManager.onStart();
+    }
+    
     @Override
     public void onResume() {
         super.onResume();
         BUS.register(this);
+        pushManager.onResume();
     }
 
     @Override
@@ -116,7 +153,7 @@ public class PushConnector extends Fragment {
     private void parseArgs() {
         Bundle args = getArguments();
         if (args == null)
-            throw new IllegalStateException("You need to create PushConnector trough "
+            throw new IllegalStateException("You need to create PushConnector through "
                     + "newInstance(String serverUrl, String appKey, String senderId)");
 
         this.serverUrl = args.getString(EXTRAS_SERVER_URL);
@@ -136,6 +173,14 @@ public class PushConnector extends Fragment {
 
     public void hitTag(String tag) {
         pushManager.hitTag(tag);
+    }
+
+    public void hitImpression(String tag) {
+        pushManager.hitImpression(tag);
+    }
+    
+    public void getPushlist(final int offset, int limit) {
+    	pushManager.getPushlist(String.valueOf(offset), String.valueOf(limit));
     }
 
     public static void postInEventBus(Object event) {

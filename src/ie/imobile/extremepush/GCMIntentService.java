@@ -2,7 +2,7 @@ package ie.imobile.extremepush;
 
 import ie.imobile.extremepush.api.LogResponseHandler;
 import ie.imobile.extremepush.api.ResponseParser;
-import ie.imobile.extremepush.api.RestClient;
+import ie.imobile.extremepush.api.XtremeRestClient;
 import ie.imobile.extremepush.api.model.PushMessage;
 import ie.imobile.extremepush.util.LogEventsUtils;
 import ie.imobile.extremepush.util.SharedPrefUtils;
@@ -21,6 +21,7 @@ import android.media.MediaPlayer.OnCompletionListener;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.android.gcm.GCMBaseIntentService;
@@ -33,6 +34,7 @@ public final class GCMIntentService extends GCMBaseIntentService {
     public static final String ACTION_REGISTER_ON_SERVER = "ie.imobile.extremepush.register_on_server_please";
     public static final String EXTRAS_PUSH_MESSAGE = "extras_push_message";
     public static final String EXTRAS_REG_ID = "extras_reg_id";
+    public static final String EXTRAS_FROM_NOTIFICATION = "extras_from_notification";
 
     private MediaPlayer mediaPlayer;
     private AsyncHttpResponseHandler pushActionResponseHandler = new LogResponseHandler();
@@ -71,7 +73,7 @@ public final class GCMIntentService extends GCMBaseIntentService {
         PushMessage pushMessage = ResponseParser.parsePushMessage(message);
 
         if (pushMessage != null) {
-            if (pushMessage.sound != null && pushMessage.sound.length() != 0) {
+            if (!TextUtils.isEmpty(pushMessage.sound)) {
                 try {
                     setupCustomSound(pushMessage.sound);
                     playSound();
@@ -86,7 +88,7 @@ public final class GCMIntentService extends GCMBaseIntentService {
 
             String serverDeviceId = SharedPrefUtils.getServerDeviceId(context);
             if (pushMessage.pushActionId != null && serverDeviceId != null) {
-                RestClient.hitAction(context, pushActionResponseHandler, serverDeviceId, pushMessage.pushActionId);
+                XtremeRestClient.hitAction(context, pushActionResponseHandler, serverDeviceId, pushMessage.pushActionId);
             }
 
             sendBroadcast(new Intent(ACTION_MESSAGE).putExtra(EXTRAS_PUSH_MESSAGE, pushMessage));
@@ -144,9 +146,11 @@ public final class GCMIntentService extends GCMBaseIntentService {
         String mainActivityName = SharedPrefUtils.getMainActivityName(context);
         Intent notificationIntent = new Intent();
         notificationIntent.putExtra(EXTRAS_PUSH_MESSAGE, pushMessage);
+        notificationIntent.putExtra(EXTRAS_FROM_NOTIFICATION, true);
 
         notificationIntent
-                .setComponent(new ComponentName(context.getApplicationContext().getPackageName(), mainActivityName));
+                .setComponent(new ComponentName(context.getApplicationContext().getPackageName(),
+                		mainActivityName));
 
         // set intent so it does not start a new activity
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -156,4 +160,13 @@ public final class GCMIntentService extends GCMBaseIntentService {
         notification.flags |= Notification.FLAG_AUTO_CANCEL;
         notificationManager.notify(Integer.parseInt(pushMessage.pushActionId), notification);
     }
+    
+    @Override
+    protected String[] getSenderIds(Context context) {
+        String[] ids = new String[1];
+        ids[0] = SharedPrefUtils.getSenderId(context);
+        return ids;
+    }
+    
+
 }
