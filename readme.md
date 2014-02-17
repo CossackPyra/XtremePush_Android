@@ -5,9 +5,10 @@ This document describes how to integrate [XtremePush](http://xtremepush.com) lib
 ##Preriqusites
 
 1. Create a project on XtremePush Dashboard.<br />
-2. Register a project on [Google Developers Console](https://cloud.google.com/console/project). Please, copy your Project Number from the top of the page.<br />
-2.1. From APIs & auth page under you project settings on Google Developer Console enable Google Cloud Messaging for Android.<br />
-2.2. Navigate to Credentials page within APIs and auth on Developer Console. Click Create New Key -> Select Server Key. Copy API Key you received on this page. Navigate to application setting on XtremePush Dashboard -> Go to Application Keys and enable Android. Paste the API Key you received from Google Developer Console into the Android application key field.<br />
+2. Download the [latest version](https://github.com/xtremepush/XtremePush_Android/archive/master.zip) or clone the library as a submodule from [Github](https://github.com/xtremepush/XtremePush_Android).
+3. Register a project on [Google Developers Console](https://cloud.google.com/console/project). Please, copy your Project Number from the top of the page.<br />
+	3.1. From APIs & auth page under you project settings on Google Developer Console enable Google Cloud Messaging for Android.<br />
+	3.2. Navigate to Credentials page within APIs and auth on Developer Console. Click Create New Key -> Select Server Key. Copy API Key you received on this page. Navigate to application setting on XtremePush Dashboard -> Go to Application Keys and enable Android. Paste the API Key you received from Google Developer Console into the Android application key field.<br />
 
 ##How to include the library
 ==========================
