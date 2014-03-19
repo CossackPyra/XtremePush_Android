@@ -120,6 +120,6 @@ if you want to start Inbox activity, you should use the following code snippet(a
  
  		startActivity(this, XPushLogActivity.class);
  		
- ##How to get GCM token and device ID in your app
+##How to get GCM token and device ID in your app
 		PushConnector.getGCMTokken() - to retrieve GCM token. 
 		PushConnector.getDeviceID() - to retrieve device ID from Xtremepush.
