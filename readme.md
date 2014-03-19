@@ -119,3 +119,7 @@ To use 'hitImpression' functionality call `pushManager.hitImpression(String tag)
 if you want to start Inbox activity, you should use the following code snippet(activity must be registred in manifest file)
  
  		startActivity(this, XPushLogActivity.class);
+ 		
+ ##How to get GCM token and device ID in your app
+		PushConnector.getGCMTokken() - to retrieve GCM token. 
+		PushConnector.getDeviceID() - to retrieve device ID from Xtremepush.
