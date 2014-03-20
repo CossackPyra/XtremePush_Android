@@ -90,7 +90,7 @@ public class PushConnector extends Fragment {
     }
 
     private String getGCMTokken() {
-    	return pushManager.getGCMTokken();
+    	return pushManager.getGCMToken();
     }
     
     private String getDeviceID() {

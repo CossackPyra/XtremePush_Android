@@ -15,8 +15,6 @@ import org.apache.http.protocol.HTTP;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.google.android.gms.internal.an;
-
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -187,6 +185,7 @@ public final class RequestBuilder {
 		
 		jsonEntity.put("id", serverRegId);
 		jsonEntity.put("impression", tag);
+		jsonEntity.put("device_count", "device_count");
 		
 		String jsonString = jsonEntity.toString();
 		

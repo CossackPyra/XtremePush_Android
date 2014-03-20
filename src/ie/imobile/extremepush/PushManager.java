@@ -237,7 +237,7 @@ public final class PushManager {
                 .getSupportFragmentManager(), pushMessage, pushConnector.isResumed(), fromNotification);
     }
 
-    public String getGCMTokken() {
+    public String getGCMToken() {
     	return regId;
     }
     
@@ -258,7 +258,7 @@ public final class PushManager {
 				}
             	
             },
-            getGCMTokken());
+            getGCMToken());
         }
     }
     
