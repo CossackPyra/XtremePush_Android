@@ -12,7 +12,7 @@ This document describes how to integrate [XtremePush](http://xtremepush.com) lib
 ##How to include the library
 ==========================
 
-1. Merge res/ folder with your project' files (string.xml, drawable, raw etc). Merge libs/ folder with your project and add there to build path. This will automatically generate xtremepush-lib.jar which needs to be added to your project build path. You will find the JAR under XtremePush_lib folder.
+1. 1. Add xtremepush project to your project as library
  
 2. In the main activity initialize the PushConnector fragment. "Main activity" is the activity on which you want alerts to appear:
 
