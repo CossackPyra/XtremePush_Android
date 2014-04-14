@@ -307,7 +307,7 @@ public final class PushManager {
         final PendingIntent pi=PendingIntent.getBroadcast(appContext, 0, i, 0);
 		mgr.setRepeating(AlarmManager.RTC_WAKEUP,
                                             System.currentTimeMillis()+10000,
-                                            1000*60*5,
+                                            1000*60*20,
                                             pi);
     }
 
