@@ -7,6 +7,8 @@ import ie.imobile.extremepush.api.XtremeRestClient;
 import ie.imobile.extremepush.api.model.EventsPushlistWrapper;
 import ie.imobile.extremepush.api.model.PushmessageListItem;
 import ie.imobile.extremepush.util.LogEventsUtils;
+import ie.imobile.extremepush.util.PullToRefreshListView;
+import ie.imobile.extremepush.util.PullToRefreshListView.OnRefreshListener;
 import ie.imobile.extremepush.util.SharedPrefUtils;
 import android.app.Activity;
 import android.os.Bundle;
@@ -18,8 +20,6 @@ import android.widget.AbsListView.OnScrollListener;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.squareup.otto.Subscribe;
 
-import eu.erikw.PullToRefreshListView;
-import eu.erikw.PullToRefreshListView.OnRefreshListener;
 
 public class XPushLogActivity extends Activity implements OnScrollListener{
     
