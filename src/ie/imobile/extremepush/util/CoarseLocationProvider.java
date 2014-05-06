@@ -19,8 +19,8 @@ public class CoarseLocationProvider {
 
     public static void requestCoarseLocation(Context context, final CoarseLocationListener coarseLocationListener) {
 
-        long minTime = 1000*60*1;
-        float minDistance = 10;
+        long minTime = 1000*60*60;
+        float minDistance = 2000;
         
     	final LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();
