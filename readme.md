@@ -125,6 +125,7 @@ if you want to start Inbox activity, you should use the following code snippet(a
 ##How to configure location update frequency
 
 If you don't foresee frequent changes and extensive use of location campaigns, it is recommended to decrease the default frequency of location updates. This can be done by editing
+		
 		init(FragmentManager fm, String appKey, String GOOGLE_PROJECT_NUMBER, int locationCheckTimeout, float locationDistance).
 	
 Set *locationCheckTimeout* to your desired location update frequency in minutes and *locationDistance* to desired updates frequency in meters.
