@@ -52,7 +52,7 @@ public final class RegisterOnServerHandler extends AsyncHttpResponseHandler {
                     XtremeRestClient.locationCheck(new LocationsResponseHandler(context),
                             SharedPrefUtils.getServerDeviceId(context), location);
                 }
-            });
+            }, 60, 2000);
         } else {
             if (PushConnector.DEBUG) Log.d(TAG, context.getString(R.string.server_register_error));
             

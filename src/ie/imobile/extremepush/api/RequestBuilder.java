@@ -96,9 +96,10 @@ public final class RequestBuilder {
         jsonEntity.put("id", serverRegId);
 
         JSONObject locationObject = new JSONObject();
-        locationObject.put("latitude", location.getLatitude());
-        locationObject.put("longitude", location.getLongitude());
-
+        if (location != null) {
+	        locationObject.put("latitude", location.getLatitude());
+	        locationObject.put("longitude", location.getLongitude());
+        }
         jsonEntity.put("location", locationObject);
         String jsonString = jsonEntity.toString();
 

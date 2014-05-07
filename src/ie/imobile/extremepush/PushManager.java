@@ -51,7 +51,8 @@ public final class PushManager {
     private boolean isConfigsUpdated;
     private boolean isDestroyed;
     
-    int alarmTimeout = 60*1;
+    int locationCheckTimeout = 60;
+    float locationDistance = 2000;
 
     private LocationAccessHelper locationAccessHelper;
 
@@ -79,11 +80,13 @@ public final class PushManager {
         }
     };
 
-    PushManager(PushConnector pushConnector, String serverUrl, String appKey, String senderId) {
+    PushManager(PushConnector pushConnector, String serverUrl, String appKey, String senderId, int locationCheckTimeout, float locationDistance) {
         this.pushConnector = pushConnector;
-        PushManager.appKey = appKey;
-        PushManager.senderId = senderId;
-        PushManager.serverUrl = serverUrl;
+        this.appKey = appKey;
+        this.senderId = senderId;
+        this.serverUrl = serverUrl;
+        this.locationCheckTimeout = locationCheckTimeout;
+        this.locationDistance = locationDistance;
 
     }
 
@@ -103,6 +106,10 @@ public final class PushManager {
 //        setupGCM();
         
         locationAccessHelper.checkLocationProviders();
+    }
+    
+    public void setLocationCheckTimeout(int min) {
+    	locationCheckTimeout = min;
     }
     
     public static String createFingerpring(Context context) {
@@ -266,8 +273,12 @@ public final class PushManager {
         final Activity activity = pushConnector.getActivity();
         final Context appContext = activity.getApplicationContext();
 
-        GCMRegistrar.checkDevice(appContext);
-        GCMRegistrar.checkManifest(appContext);
+		try {
+			GCMRegistrar.checkDevice(appContext);
+			GCMRegistrar.checkManifest(appContext);
+		} catch (UnsupportedOperationException e) {
+			Log.e(TAG, "Device does not have package com.google.android.gsf");
+		}
 
         regId = GCMRegistrar.getRegistrationId(appContext);
         if (PushConnector.DEBUG) Log.d(TAG, "GCM id:" + regId);
@@ -286,7 +297,7 @@ public final class PushManager {
                         XtremeRestClient.locationCheck(new LocationsResponseHandler(appContext),
                                 SharedPrefUtils.getServerDeviceId(appContext), location);
                     }
-                });
+                }, locationCheckTimeout, locationDistance);
             } else {
                 if (PushConnector.DEBUG) Log.d(TAG, "Register on server from PushManager with regId: " + regId);
                 XtremeRestClient.registerOnServer(appContext, new RegisterOnServerHandler(appContext), regId);
@@ -307,7 +318,7 @@ public final class PushManager {
         final PendingIntent pi=PendingIntent.getBroadcast(appContext, 0, i, 0);
 		mgr.setRepeating(AlarmManager.RTC_WAKEUP,
                                             System.currentTimeMillis()+10000,
-                                            1000*60*60,
+                                            1000*60*locationCheckTimeout,
                                             pi);
     }
 

@@ -17,10 +17,8 @@ public class CoarseLocationProvider {
 
     protected static final String TAG = CoarseLocationProvider.class.getCanonicalName();
 
-    public static void requestCoarseLocation(Context context, final CoarseLocationListener coarseLocationListener) {
-
-        long minTime = 1000*60*60;
-        float minDistance = 2000;
+    public static void requestCoarseLocation(Context context, final CoarseLocationListener coarseLocationListener,
+    		long minTime, float minDistance) {
         
     	final LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();

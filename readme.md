@@ -6,13 +6,13 @@ This document describes how to integrate [XtremePush](http://xtremepush.com) lib
 
 1. Create a project on XtremePush Dashboard.<br />
 2. Register a project on [Google Developers Console](https://cloud.google.com/console/project). Please, copy your Project Number from the top of the page.<br />
-2.1. From APIs & auth page under you project settings on Google Developer Console enable Google Cloud Messaging for Android.<br />
-2.2. Navigate to Credentials page within APIs and auth on Developer Console. Click Create New Key -> Select Server Key. Copy API Key you received on this page. Navigate to application setting on XtremePush Dashboard -> Go to Application Keys and enable Android. Paste the API Key you received from Google Developer Console into the Android application key field.<br />
+	2.1. From APIs & auth page under you project settings on Google Developer Console enable Google Cloud Messaging for Android.<br />
+	2.2. Navigate to Credentials page within APIs and auth on Developer Console. Click Create New Key -> Select Server Key. Copy API Key you received on this page. Navigate to application setting on XtremePush Dashboard -> Go to Application Keys and enable Android. Paste the API Key you received from Google Developer Console into the Android application key field.<br />
 
 ##How to include the library
 ==========================
 
-1. 1. Add xtremepush project to your project as library
+1. 1. Add xtremepush project to your project as library. NOTE! If you are using IntelliJ IDEA, make sure you tick the box Library module e.g. ![Adding library in IDEA](http://cl.ly/image/3P0j0E442k2C/Screenshot%202014-05-08%2000.32.06.png)
  
 2. In the main activity initialize the PushConnector fragment. "Main activity" is the activity on which you want alerts to appear:
 
@@ -23,7 +23,7 @@ This document describes how to integrate [XtremePush](http://xtremepush.com) lib
            super.onCreate(savedInstanceState);
            setContentView(R.layout.activity_main); // Put here your xml layout. activity_main here just for example
 
-           pushConnector = PushConnector.initPushConnector(getSupportFragmentManager(), XPUSH_APP_KEY, GOOGLE_PROJECT_NUMBER);
+           pushConnector = PushConnector.init(getSupportFragmentManager(), XPUSH_APP_KEY, GOOGLE_PROJECT_NUMBER);
         }
 
     Where:
@@ -121,3 +121,10 @@ if you want to start Inbox activity, you should use the following code snippet(a
 ##How to get GCM token and device ID in your app
 		PushConnector.getGCMToken() - to retrieve GCM token. 
 		PushConnector.getDeviceID() - to retrieve device ID from Xtremepush.
+		
+##How to configure location update frequency
+
+If you don't foresee frequent changes and extensive use of location campaigns, it is recommended to decrease the default frequency of location updates. This can be done by editing
+		init(FragmentManager fm, String appKey, String GOOGLE_PROJECT_NUMBER, int locationCheckTimeout, float locationDistance).
+	
+Set *locationCheckTimeout* to your desired location update frequency in minutes and *locationDistance* to desired updates frequency in meters.

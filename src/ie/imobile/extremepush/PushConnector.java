@@ -24,6 +24,8 @@ public class PushConnector extends Fragment {
     private static final String EXTRAS_SERVER_URL = "extras_server_url";
     private static final String EXTRAS_APP_KEY = "extras_app_key";
     private static final String EXTRAS_SENDER_ID = "extras_sender_id";
+    private static final String TIMEOUT = "time_out";
+    private static final String LOCALDIST = "locationDistance";
 
     // Constants for events logging
     public static final String ACTION_EVENT_MESSAGE = "ie.imobile.extremepush.action_event_message";
@@ -37,15 +39,30 @@ public class PushConnector extends Fragment {
     private String serverUrl;
     private String appKey;
     private String senderId;
+    private int locationCheckTimeout;
+    private float locationDistance;
     private PushManager pushManager;
 
     private static String SERVER_URL = "https://xtremepush.com";
+    
+    public static PushConnector init(FragmentManager fm, String appKey, String GOOGLE_PROJECT_NUMBER, int locationCheckTimeout, float locationDistance) {
+        PushConnector pushConnector = (PushConnector) fm.findFragmentByTag(FRAGMENT_TAG);
+        if (pushConnector != null) return pushConnector;
+        
+        pushConnector = newInstance(SERVER_URL, appKey, GOOGLE_PROJECT_NUMBER, locationCheckTimeout, locationDistance);
+
+        FragmentTransaction ft = fm.beginTransaction();
+        	ft.add(pushConnector, FRAGMENT_TAG);
+        ft.commit();
+
+        return pushConnector;
+    }
     
     public static PushConnector init(FragmentManager fm, String appKey, String GOOGLE_PROJECT_NUMBER) {
         PushConnector pushConnector = (PushConnector) fm.findFragmentByTag(FRAGMENT_TAG);
         if (pushConnector != null) return pushConnector;
         
-        pushConnector = newInstance(SERVER_URL, appKey, GOOGLE_PROJECT_NUMBER);
+        pushConnector = newInstance(SERVER_URL, appKey, GOOGLE_PROJECT_NUMBER, 60, 2000);
 
         FragmentTransaction ft = fm.beginTransaction();
         	ft.add(pushConnector, FRAGMENT_TAG);
@@ -66,13 +83,15 @@ public class PushConnector extends Fragment {
         return init(fm, appKey, senderId, serverUrl);
     }
     
-    private static PushConnector newInstance(String serverUrl, String appKey, String senderId) {
+    private static PushConnector newInstance(String serverUrl, String appKey, String senderId, int locationCheckTimeout, float locationDistance) {
         PushConnector fragment = new PushConnector();
 
         Bundle args = new Bundle();
 	        args.putString(EXTRAS_SERVER_URL, serverUrl);
 	        args.putString(EXTRAS_APP_KEY, appKey);
 	        args.putString(EXTRAS_SENDER_ID, senderId);
+	        args.putInt(TIMEOUT, locationCheckTimeout);
+	        args.putFloat(LOCALDIST, locationDistance);
         fragment.setArguments(args);
 
         return fragment;
@@ -83,7 +102,7 @@ public class PushConnector extends Fragment {
         super.onAttach(activity);
         if (pushManager == null) {
             parseArgs();
-            pushManager = new PushManager(this, serverUrl, appKey, senderId);
+            pushManager = new PushManager(this, serverUrl, appKey, senderId, locationCheckTimeout, locationDistance);
             return;
         }
         pushManager.onAttach(activity);
@@ -159,6 +178,7 @@ public class PushConnector extends Fragment {
         this.serverUrl = args.getString(EXTRAS_SERVER_URL);
         this.appKey = args.getString(EXTRAS_APP_KEY);
         this.senderId = args.getString(EXTRAS_SENDER_ID);
+        this.locationCheckTimeout = args.getInt(TIMEOUT);
     }
 
     @Override
