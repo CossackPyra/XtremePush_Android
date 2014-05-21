@@ -46,6 +46,10 @@ public final class PushDialogFragment extends DialogFragment {
         if (pushMessage.url != null) {
             builder.setPositiveButton(R.string.push_dialog_view, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
+                    String serverDeviceId = SharedPrefUtils.getServerDeviceId(getActivity());
+                    if (pushMessage.pushActionId != null && serverDeviceId != null) {
+                        XtremeRestClient.hitAction(getActivity(), actionUrlResponseHandler, serverDeviceId, pushMessage.pushActionId);
+                    }
                     XtremeRestClient.hitUrl(getActivity(), actionUrlResponseHandler,
                             SharedPrefUtils.getServerDeviceId(getActivity()), pushMessage.pushActionId);
 
@@ -59,6 +63,10 @@ public final class PushDialogFragment extends DialogFragment {
         }
         builder.setNegativeButton(R.string.push_dialog_close, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
+                String serverDeviceId = SharedPrefUtils.getServerDeviceId(getActivity());
+                if (pushMessage.pushActionId != null && serverDeviceId != null) {
+                    XtremeRestClient.hitAction(getActivity(), actionUrlResponseHandler, serverDeviceId, pushMessage.pushActionId);
+                }
             }
         });
         return builder.create();

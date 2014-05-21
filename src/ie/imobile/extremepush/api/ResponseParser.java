@@ -127,4 +127,22 @@ public class ResponseParser {
         }
         return response;
     }
+
+    public static String parseStatisticsResponse(String response, Context context) {
+        try {
+            final JSONObject responseJson;
+            responseJson = new JSONObject(response);
+            if (PushConnector.DEBUG_LOG)
+                LogEventsUtils.sendLogTextMessage(context, "Catch response: " + responseJson.toString(1));
+            int code = responseJson.getInt("code");
+            if (code == 200) {
+                String regId = responseJson.getString("message");
+                return regId;
+            }
+            return null;
+        } catch (JSONException e) {
+            Log.wtf(TAG, e);
+            return null;
+        }
+    }
 }

@@ -6,12 +6,15 @@ import ie.imobile.extremepush.util.SharedPrefUtils;
 import ie.imobile.extremepush.util.TimeUtils;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.http.entity.StringEntity;
 import org.apache.http.protocol.HTTP;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -31,7 +34,7 @@ public final class RequestBuilder {
     private RequestBuilder() {
     }
 
-    static StringEntity buildJsonEntityForRegistration(Context context, String regId) throws UnsupportedEncodingException,
+    static StringEntity buildJsonEntityForRegistration(Context context) throws UnsupportedEncodingException,
             JSONException {
         JSONObject jsonEntity = new JSONObject();
 
@@ -40,8 +43,8 @@ public final class RequestBuilder {
         final String libVer = LibVersion.VER;
         final String countryCode = manager.getSimCountryIso();
         
-        String deviceId;
-        if (manager.getDeviceId() != null) {
+        String deviceId = manager.getDeviceId();
+        if (deviceId != null && Long.parseLong(deviceId) != 0) {
             deviceId = manager.getDeviceId();
         } else {
             deviceId = Secure.getString(context.getApplicationContext().getContentResolver(), Secure.ANDROID_ID);
@@ -53,14 +56,14 @@ public final class RequestBuilder {
             try {
                 PackageInfo packageInfo = packageManager.getPackageInfo(context.getPackageName(), 0);
                 versionName = packageInfo.versionName + " " + packageInfo.versionCode;
+
             } catch (PackageManager.NameNotFoundException e) {
                 versionName = "none";
             }
         }
         
-        jsonEntity.put("id", SharedPrefUtils.getServerDeviceId(context));
         jsonEntity.put("appkey", SharedPrefUtils.getAppKey(context));
-        jsonEntity.put("token", regId);
+        jsonEntity.put("token", "");
         
         jsonEntity.put("type", "android");
         jsonEntity.put("name", android.os.Build.BRAND);
@@ -85,6 +88,64 @@ public final class RequestBuilder {
         String jsonString = jsonEntity.toString();
     
         if (PushConnector.DEBUG) Log.d(TAG, "EntityForRegistration: " + jsonString);
+
+        return new StringEntity(jsonString, HTTP.UTF_8);
+    }
+
+    static StringEntity buildJsonEntityForUpdate(Context context, String regId) throws UnsupportedEncodingException,
+            JSONException {
+        JSONObject jsonEntity = new JSONObject();
+
+        TelephonyManager manager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        final String carrierName = manager.getNetworkOperatorName();
+        final String libVer = LibVersion.VER;
+        final String countryCode = manager.getSimCountryIso();
+
+        String deviceId;
+        if (manager.getDeviceId() != null) {
+            deviceId = manager.getDeviceId();
+        } else {
+            deviceId = Secure.getString(context.getApplicationContext().getContentResolver(), Secure.ANDROID_ID);
+        }
+
+        final PackageManager packageManager = context.getPackageManager();
+        String versionName = null;
+        if (packageManager != null) {
+            try {
+                PackageInfo packageInfo = packageManager.getPackageInfo(context.getPackageName(), 0);
+                versionName = packageInfo.versionName + " " + packageInfo.versionCode;
+            } catch (PackageManager.NameNotFoundException e) {
+                versionName = "none";
+            }
+        }
+
+        jsonEntity.put("id", SharedPrefUtils.getServerDeviceId(context));
+        jsonEntity.put("appkey", SharedPrefUtils.getAppKey(context));
+        jsonEntity.put("token", regId);
+
+        jsonEntity.put("type", "android");
+        jsonEntity.put("name", android.os.Build.BRAND);
+
+        jsonEntity.put("device_id", deviceId);
+        jsonEntity.put("device_os", Build.VERSION.SDK_INT);
+        jsonEntity.put("device_type", android.os.Build.MODEL);
+
+        jsonEntity.put("environment", "production");
+
+        jsonEntity.put("country", manager.getSimCountryIso());
+
+        jsonEntity.put("carrier_name", manager.getSimOperatorName());
+
+        jsonEntity.put("timezone", TimeUtils.getUtcTimeZone());
+        jsonEntity.put("bundle_version", versionName);
+        jsonEntity.put("lib_version", libVer);
+
+        jsonEntity.put("language", Locale.getDefault().getLanguage());
+
+
+        String jsonString = jsonEntity.toString();
+
+        if (PushConnector.DEBUG) Log.d(TAG, "EntityForUpdate: " + jsonString);
 
         return new StringEntity(jsonString, HTTP.UTF_8);
     }
@@ -210,13 +271,15 @@ public final class RequestBuilder {
     }
     
 	jsonEntity.put("id", serverRegId);
-	
-	JSONObject jsonSessionsEntity = new JSONObject();
+
+	JSONArray jsonSessionsList = new JSONArray();
 	for (Entry<Long, Long> entry: log.entrySet()) {
-		jsonSessionsEntity.put("start", entry.getKey());
-		jsonSessionsEntity.put("length", entry.getValue());
+        JSONObject jsonSession = new JSONObject();
+		jsonSession.put("start", entry.getKey());
+		jsonSession.put("length", entry.getValue());
+        jsonSessionsList.put(jsonSession);
 	}
-	jsonEntity.put("sessions", jsonSessionsEntity);
+	jsonEntity.put("sessions", jsonSessionsList);
     jsonEntity.put("bundle_version", versionName);
     jsonEntity.put("lib_version", LibVersion.VER);
 	

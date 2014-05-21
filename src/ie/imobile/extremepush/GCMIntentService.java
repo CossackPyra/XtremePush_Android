@@ -37,7 +37,6 @@ public final class GCMIntentService extends GCMBaseIntentService {
     public static final String EXTRAS_FROM_NOTIFICATION = "extras_from_notification";
 
     private MediaPlayer mediaPlayer;
-    private AsyncHttpResponseHandler pushActionResponseHandler = new LogResponseHandler();
 
     @Override
     public void onCreate() {
@@ -84,11 +83,6 @@ public final class GCMIntentService extends GCMBaseIntentService {
                 }
             } else {
                 playDefaultRingtone();
-            }
-
-            String serverDeviceId = SharedPrefUtils.getServerDeviceId(context);
-            if (pushMessage.pushActionId != null && serverDeviceId != null) {
-                XtremeRestClient.hitAction(context, pushActionResponseHandler, serverDeviceId, pushMessage.pushActionId);
             }
 
             sendBroadcast(new Intent(ACTION_MESSAGE).putExtra(EXTRAS_PUSH_MESSAGE, pushMessage));

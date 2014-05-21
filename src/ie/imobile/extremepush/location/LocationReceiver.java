@@ -69,7 +69,7 @@ public class LocationReceiver extends BroadcastReceiver {
 	      out.write("\n");
 	      out.close();
 	      
-
+          if (loc == null) return;
           if (PushConnector.DEBUG) Log.d("", "Coarse location received:" + loc.toString());
           XtremeRestClient.locationCheck(new LocationsResponseHandler(context),
                   SharedPrefUtils.getServerDeviceId(context), loc);

@@ -1,14 +1,17 @@
 package ie.imobile.extremepush.util;
 
+import android.os.Environment;
+import android.text.TextUtils;
+import ie.imobile.extremepush.api.ResponseParser;
 import ie.imobile.extremepush.api.XtremeRestClient;
 
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import android.content.Context;
-import android.text.TextUtils;
 import android.util.Log;
 
 public class MonitoringUtils {
@@ -20,25 +23,64 @@ public class MonitoringUtils {
 		time = System.currentTimeMillis();
 	}
 
-	public static void stopSession(final Context context, final String serverRegId) {
-		SharedPrefUtils.setLastStartSessionTime(context, String.valueOf(time/1000));
-		SharedPrefUtils.setLastDurationtSessionTime(context, String.valueOf((System.currentTimeMillis() - time)/1000));
-		Log.d(TAG, "session duration: " +  ((System.currentTimeMillis() - time)/1000) 
+	public static void stopSession() {
+        Map<Long, Long> map = readSessionMap();
+        map.put(time/1000, (System.currentTimeMillis() - time)/1000);
+        writeSessionMap(map);
+        Log.d(TAG, "session duration: " +  ((System.currentTimeMillis() - time)/1000)
 				+ "sec, start at: " + time/1000);
 	}
 
-	private static void sendLastLog(final Context context) {
-		String ss = SharedPrefUtils.getLastStartSessionTime(context);
-		String dd = SharedPrefUtils.getLastDurationtSessionTime(context);
-		if (!TextUtils.isEmpty(ss) && !TextUtils.isEmpty(dd)) {
-			long s = Long.valueOf(ss);
-			long d = Long.valueOf(dd);
-			Map<Long, Long> timeLog = new HashMap<Long, Long>();
-			timeLog.put(s, d);
-			XtremeRestClient.hitDevStatistics(context,
-					new AsyncHttpResponseHandler(),
-					SharedPrefUtils.getServerDeviceId(context), timeLog);
-		}
+    private static void sendLastLog(final Context context) {
+        Map<Long, Long> timeLog = readSessionMap();
+        XtremeRestClient.hitDevStatistics(context,
+                new AsyncHttpResponseHandler() {
+                    @Override
+                    public void onSuccess(int arg, String response) {
+                        String message = ResponseParser.parseStatisticsResponse(response, context);
+                        if (message != null && TextUtils.equals(message, "Success"))
+                            writeSessionMap(new HashMap<Long, Long>());
+                    }
+                },
+                SharedPrefUtils.getServerDeviceId(context), timeLog);
 	}
-		
+
+    private static Map<Long, Long> readSessionMap() {
+        Map<Long, Long> map = null;
+        try {
+            File sessionsFile=
+                    new File(Environment.getExternalStorageDirectory(),
+                            "SessionsLog.txt");
+            if (!sessionsFile.exists()) return new HashMap<Long, Long>();
+            FileInputStream log = new FileInputStream(sessionsFile);
+            ObjectInputStream iStream = new ObjectInputStream(log);
+            map = (Map<Long, Long>) iStream.readObject();
+            if (map == null)
+                map = new HashMap<Long, Long>();
+            iStream.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return map;
+    }
+
+    private static void writeSessionMap(Map<Long, Long> list) {
+        try {
+            File sessionsFile=
+                    new File(Environment.getExternalStorageDirectory(),
+                            "SessionsLog.txt");
+            FileOutputStream log = new FileOutputStream(sessionsFile);
+            ObjectOutputStream oStream = new ObjectOutputStream(log);
+            oStream.writeObject(list);
+            oStream.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

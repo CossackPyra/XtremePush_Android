@@ -1,5 +1,6 @@
 package ie.imobile.extremepush.api;
 
+import com.loopj.android.http.JsonHttpResponseHandler;
 import ie.imobile.extremepush.PushConnector;
 import ie.imobile.extremepush.PushManager;
 import ie.imobile.extremepush.util.LogEventsUtils;
@@ -26,14 +27,14 @@ public final class XtremeRestClient {
     private XtremeRestClient() {
     }
 
-    public static void registerOnServer(Context context, AsyncHttpResponseHandler responseHandler, String regId) {
+    public static void registerOnServer(Context context, AsyncHttpResponseHandler responseHandler) {
         String url = PushManager.serverUrl + "/push/api/deviceCreate";
         try {
+            httpClient.setTimeout(0);
         	httpClient.setUserAgent(AGENT);
-            httpClient.post(null, url, RequestBuilder.buildJsonEntityForRegistration(context, regId), "application/json",
+            httpClient.post(null, url, RequestBuilder.buildJsonEntityForRegistration(context), "application/json",
                     responseHandler);
-            if (PushConnector.DEBUG) LogEventsUtils.sendLogTextMessage(context, "Sent request to: " + url + " with regId: "
-                    + regId);
+            if (PushConnector.DEBUG) LogEventsUtils.sendLogTextMessage(context, "Sent request to: " + url);
         } catch (UnsupportedEncodingException e) {
             Log.wtf(TAG, e);
         } catch (JSONException e) {
@@ -44,8 +45,9 @@ public final class XtremeRestClient {
     public static void hitDeviceUpdate(Context context, AsyncHttpResponseHandler responseHandler, String regId) {
         String url = PushManager.serverUrl + "/push/api/deviceUpdate";
         try {
+            httpClient.setTimeout(0);
         	httpClient.setUserAgent(AGENT);
-            httpClient.post(null, url, RequestBuilder.buildJsonEntityForRegistration(context, regId), "application/json",
+            httpClient.post(null, url, RequestBuilder.buildJsonEntityForUpdate(context, regId), "application/json",
                     responseHandler);
             if (PushConnector.DEBUG) LogEventsUtils.sendLogTextMessage(context, "Sent request to: " + url + " with regId: "
                     + regId);

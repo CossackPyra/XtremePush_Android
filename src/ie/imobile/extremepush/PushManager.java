@@ -7,13 +7,8 @@ import ie.imobile.extremepush.api.RegisterOnServerHandler;
 import ie.imobile.extremepush.api.XtremeRestClient;
 import ie.imobile.extremepush.api.model.PushMessage;
 import ie.imobile.extremepush.location.LocationReceiver;
-import ie.imobile.extremepush.util.CoarseLocationProvider;
+import ie.imobile.extremepush.util.*;
 import ie.imobile.extremepush.util.CoarseLocationProvider.CoarseLocationListener;
-import ie.imobile.extremepush.util.LibVersion;
-import ie.imobile.extremepush.util.LocationAccessHelper;
-import ie.imobile.extremepush.util.PushMessageDisplayHelper;
-import ie.imobile.extremepush.util.SharedPrefUtils;
-import ie.imobile.extremepush.util.TimeUtils;
 
 import java.util.Locale;
 
@@ -65,10 +60,10 @@ public final class PushManager {
 
             if (PushConnector.DEBUG) Log.d(TAG, "Receive broadcast");
 
+            regId = extras.getString(GCMIntentService.EXTRAS_REG_ID);
             if (action.equals(GCMIntentService.ACTION_REGISTER_ON_SERVER)) {
                 XtremeRestClient.registerOnServer(pushConnector.getActivity(),
-                        new RegisterOnServerHandler(pushConnector.getActivity()),
-                        extras.getString(GCMIntentService.EXTRAS_REG_ID));
+                        new RegisterOnServerHandler(pushConnector.getActivity(), regId));
             } else if (action.equals(GCMIntentService.ACTION_MESSAGE)) {
                 PushMessage pushMessage = extras.getParcelable(GCMIntentService.EXTRAS_PUSH_MESSAGE);
                 boolean fromNotification = extras.getBoolean(GCMIntentService.EXTRAS_FROM_NOTIFICATION);
@@ -112,24 +107,35 @@ public final class PushManager {
     	locationCheckTimeout = min;
     }
     
-    public static String createFingerpring(Context context) {
-        TelephonyManager tm = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
-        String countryCode = tm.getSimCountryIso();
-        String carrierName = tm.getNetworkOperatorName();
-    	return generateConfigFingerprint(android.os.Build.BRAND, 
-	        		Build.VERSION.SDK_INT,
-	        		android.os.Build.MODEL,
-	        		context.getResources().getConfiguration().locale.getCountry(),
-	        		carrierName,
-	        		LibVersion.VER,
-	        		TimeUtils.getUtcTimeZone(),
-	        		countryCode,
-	        		Locale.getDefault().getISO3Language());
-    }
-    
     void onStart() {
     	setupGCM();
-    	checkConf(pushConnector.getActivity());
+
+        final Context ctx = pushConnector.getActivity().getApplicationContext();
+        if (TextUtils.equals(createFingerpring(ctx), SharedPrefUtils.getDeviceFingerprint(ctx))
+                || !GCMRegistrar.isRegistered(ctx) || TextUtils.isEmpty(SharedPrefUtils.getServerDeviceId(ctx))) return;
+        if (PushConnector.DEBUG) Log.d(TAG, "Device fingerprint update");
+        XtremeRestClient.hitDeviceUpdate(ctx, new AsyncHttpResponseHandler() {
+
+            @Override
+            public void onSuccess(String response) {
+                super.onSuccess(response);
+                if (PushConnector.DEBUG_LOG) {
+                    LogEventsUtils.sendLogTextMessage(ctx, "Response:" + response);
+                }
+                SharedPrefUtils.setDeviceFingerpirnt(ctx, createFingerpring(ctx));
+                GCMRegistrar.setRegisteredOnServer(ctx, true);
+                CoarseLocationProvider.requestCoarseLocation(ctx, new CoarseLocationListener() {
+
+                    @Override
+                    public void onCoarseLocationReceived(Location location) {
+                        XtremeRestClient.locationCheck(new LocationsResponseHandler(ctx),
+                                SharedPrefUtils.getServerDeviceId(ctx), location);
+                    }
+                }, 60, 2000);
+            }
+
+        },
+        regId);
     }
     
     void onResume() {
@@ -252,23 +258,6 @@ public final class PushManager {
     	return SharedPrefUtils.getServerDeviceId(pushConnector.getActivity().getApplicationContext());
     }
     
-    private void checkConf(final Context appContext) {
-        if (!TextUtils.equals(createFingerpring(appContext), SharedPrefUtils.getDeviceFingerprint(appContext))) {
-            if (PushConnector.DEBUG) Log.d(TAG, "Device fingerprint update");
-            final String devicefinferpring = createFingerpring(appContext);
-            XtremeRestClient.hitDeviceUpdate(appContext, new AsyncHttpResponseHandler() {
-
-				@Override
-				public void onSuccess(String arg0) {
-					super.onSuccess(arg0);
-		            SharedPrefUtils.setDeviceFingerpirnt(appContext, devicefinferpring);
-				}
-            	
-            },
-            getGCMToken());
-        }
-    }
-    
     private void setupGCM() {
         final Activity activity = pushConnector.getActivity();
         final Context appContext = activity.getApplicationContext();
@@ -299,8 +288,8 @@ public final class PushManager {
                     }
                 }, locationCheckTimeout, locationDistance);
             } else {
-                if (PushConnector.DEBUG) Log.d(TAG, "Register on server from PushManager with regId: " + regId);
-                XtremeRestClient.registerOnServer(appContext, new RegisterOnServerHandler(appContext), regId);
+                if (PushConnector.DEBUG) Log.d(TAG, "Register on server from PushManager");
+                XtremeRestClient.registerOnServer(appContext, new RegisterOnServerHandler(appContext, regId));
                 String devicefinferpring = createFingerpring(appContext);
                 SharedPrefUtils.setDeviceFingerpirnt(appContext, devicefinferpring);
                 
@@ -322,6 +311,21 @@ public final class PushManager {
                                             pi);
     }
 
+    public static String createFingerpring(Context context) {
+        TelephonyManager tm = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
+        String countryCode = tm.getSimCountryIso();
+        String carrierName = tm.getNetworkOperatorName();
+        return generateConfigFingerprint(android.os.Build.BRAND,
+                Build.VERSION.SDK_INT,
+                android.os.Build.MODEL,
+                context.getResources().getConfiguration().locale.getCountry(),
+                carrierName,
+                LibVersion.VER,
+                TimeUtils.getUtcTimeZone(),
+                countryCode,
+                Locale.getDefault().getISO3Language());
+    }
+
     private static String generateConfigFingerprint(Object... configs) {
         StringBuilder hashBuilder = new StringBuilder();
         for (Object config : configs) {
@@ -329,5 +333,4 @@ public final class PushManager {
         }
         return hashBuilder.toString();
     }
-
 }

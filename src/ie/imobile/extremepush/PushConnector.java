@@ -16,6 +16,7 @@ import android.util.Log;
 
 import com.squareup.otto.Bus;
 import com.squareup.otto.Produce;
+import ie.imobile.extremepush.util.MonitoringUtils;
 
 public class PushConnector extends Fragment {
 
@@ -43,8 +44,9 @@ public class PushConnector extends Fragment {
     private float locationDistance;
     private PushManager pushManager;
 
+//    private static String SERVER_URL = "https://xtremepush.stage.mqd.me";
     private static String SERVER_URL = "https://xtremepush.com";
-    
+
     public static PushConnector init(FragmentManager fm, String appKey, String GOOGLE_PROJECT_NUMBER, int locationCheckTimeout, float locationDistance) {
         PushConnector pushConnector = (PushConnector) fm.findFragmentByTag(FRAGMENT_TAG);
         if (pushConnector != null) return pushConnector;
@@ -142,6 +144,7 @@ public class PushConnector extends Fragment {
     public void onStart() {
     	super.onStart();
     	pushManager.onStart();
+        MonitoringUtils.startSession(getActivity());
     }
     
     @Override
@@ -155,6 +158,12 @@ public class PushConnector extends Fragment {
     public void onPause() {
         super.onPause();
         BUS.unregister(this);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        MonitoringUtils.stopSession();
     }
 
     @Override
