@@ -169,7 +169,7 @@ Finally further down in the main activity add the following two methods:
 
 5. You are almost ready to send your first push. Click preview, review your text and then hit send push. Your Android device will receive the push: 
 
-   ![ Your First Push ](http://cl.ly/image/3i1g2L3L321B/first_push_android.png)
+   ![ Your First Push ](http://cl.ly/image/3i1g2L3L321B/first_push_android.png =250x400)
 
 ### 5. Tagging your app to enable deeper audience analysis and segmentation <a name="tagging"></a> 
 
