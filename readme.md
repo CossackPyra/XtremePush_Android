@@ -62,7 +62,7 @@ This document should provide all the info you need to integrate your Android app
  android:name="YOUR_PACAKAGE.permission.C2D_MESSAGE"
  android:protectionLevel="signature" />
 
-<uses-permission android:name="com.example.xtremepushtestapp.permission.C2D_MESSAGE" />
+<uses-permission android:name="YOUR_PACKAGE.permission.C2D_MESSAGE" />
 
 <!-- This app has permission to register and receive data message. -->
 <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
