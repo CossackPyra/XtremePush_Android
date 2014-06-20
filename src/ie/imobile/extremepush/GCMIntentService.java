@@ -1,6 +1,7 @@
 package ie.imobile.extremepush;
 
 import ie.imobile.extremepush.api.ResponseParser;
+import ie.imobile.extremepush.api.XtremeRestClient;
 import ie.imobile.extremepush.api.model.PushMessage;
 import ie.imobile.extremepush.util.LogEventsUtils;
 import ie.imobile.extremepush.util.SharedPrefUtils;
@@ -10,15 +11,20 @@ import java.io.IOException;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.AssetFileDescriptor;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -32,8 +38,21 @@ public final class GCMIntentService extends GCMBaseIntentService {
     public static final String EXTRAS_PUSH_MESSAGE = "extras_push_message";
     public static final String EXTRAS_REG_ID = "extras_reg_id";
     public static final String EXTRAS_FROM_NOTIFICATION = "extras_from_notification";
+    public static final String ACTIVITY_IN_BACKGROUND = "activity_in_background";
 
     private MediaPlayer mediaPlayer;
+    private boolean activityInBackground = true;
+    private final BroadcastReceiver activityStateReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context activity, Intent intent) {
+            Bundle extras = intent.getExtras();
+
+            if (PushConnector.DEBUG) Log.d(TAG, "Receive broadcast");
+            activityInBackground = extras.getBoolean(ACTIVITY_IN_BACKGROUND, true);
+
+        }
+    };
 
     @Override
     public void onCreate() {
@@ -47,6 +66,14 @@ public final class GCMIntentService extends GCMBaseIntentService {
             }
 
         });
+        IntentFilter filter = new IntentFilter(ACTIVITY_IN_BACKGROUND);
+        registerReceiver(activityStateReceiver, filter);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(activityStateReceiver);
     }
 
     @Override
@@ -83,7 +110,8 @@ public final class GCMIntentService extends GCMBaseIntentService {
             }
 
             sendBroadcast(new Intent(ACTION_MESSAGE).putExtra(EXTRAS_PUSH_MESSAGE, pushMessage));
-            generateNotification(context, pushMessage);
+            if (activityInBackground)
+                generateNotification(context, pushMessage);
 
             LogEventsUtils.sendLogTextMessage(context, "Received message:" + message);
         }
@@ -126,14 +154,23 @@ public final class GCMIntentService extends GCMBaseIntentService {
         return super.onRecoverableError(context, errorId);
     }
 
-    @SuppressWarnings("deprecation")
     private static void generateNotification(Context context, PushMessage pushMessage) {
-        long when = System.currentTimeMillis();
         NotificationManager notificationManager = (NotificationManager) context
                 .getSystemService(Context.NOTIFICATION_SERVICE);
         int notificationIcon = context.getApplicationContext().getApplicationInfo().icon;
-        Notification notification = new Notification(notificationIcon, pushMessage.alert, when);
         String title = context.getString(R.string.app_name);
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context)
+                .setSmallIcon(notificationIcon)
+                .setContentTitle(title)
+                .setContentText(pushMessage.alert);
+
+        int currentApiVersion = Build.VERSION.SDK_INT;
+        if (currentApiVersion >= Build.VERSION_CODES.JELLY_BEAN) {
+            NotificationCompat.BigTextStyle inboxStyle =
+                    new NotificationCompat.BigTextStyle();
+            inboxStyle.bigText(pushMessage.alert);
+            mBuilder.setStyle(inboxStyle);
+        }
 
         String mainActivityName = SharedPrefUtils.getMainActivityName(context);
         Intent notificationIntent = new Intent();
@@ -148,8 +185,9 @@ public final class GCMIntentService extends GCMBaseIntentService {
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         notificationIntent.setAction("open activity" + pushMessage.pushActionId);
         PendingIntent intent = PendingIntent.getActivity(context, 0, notificationIntent, PendingIntent.FLAG_ONE_SHOT);
-        notification.setLatestEventInfo(context, title, pushMessage.alert, intent);
-        notification.icon = notificationIcon;
+        mBuilder.setContentIntent(intent);
+
+        Notification notification = mBuilder.build();
         notification.flags |= Notification.FLAG_AUTO_CANCEL;
         notificationManager.notify(Integer.parseInt(pushMessage.pushActionId), notification);
     }

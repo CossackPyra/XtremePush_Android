@@ -7,6 +7,7 @@ import ie.imobile.extremepush.api.LogResponseHandler;
 import ie.imobile.extremepush.api.RegisterOnServerHandler;
 import ie.imobile.extremepush.api.XtremeRestClient;
 import ie.imobile.extremepush.api.model.PushMessage;
+import ie.imobile.extremepush.config.LocationConfig;
 import ie.imobile.extremepush.location.LocationReceiver;
 import ie.imobile.extremepush.util.*;
 import ie.imobile.extremepush.util.CoarseLocationProvider.CoarseLocationListener;
@@ -46,10 +47,11 @@ public final class PushManager {
     private boolean isConfigsUpdated;
     private boolean isDestroyed;
     
-    int locationCheckTimeout = 60;
-    float locationDistance = 2000;
+    public static int locationCheckTimeout = LocationConfig.LOCATION_CHECK_TIMEOUT;
+    public static float locationDistance = LocationConfig.LOCATION_DISTANCE;
 
     private LocationAccessHelper locationAccessHelper;
+    private PushListener pushListener;
 
     private boolean showDialog = true;
     private final BroadcastReceiver messageReceiver = new BroadcastReceiver() {
@@ -107,13 +109,26 @@ public final class PushManager {
     void onStart() {
     	setupGCM();
 
+        Intent activityStateIntent = new Intent(GCMIntentService.ACTIVITY_IN_BACKGROUND);
+        activityStateIntent.putExtra(GCMIntentService.ACTIVITY_IN_BACKGROUND, false);
+        pushConnector.getActivity().sendBroadcast(activityStateIntent);
+
         final Context ctx = pushConnector.getActivity().getApplicationContext();
         if (TextUtils.equals(createFingerpring(ctx), SharedPrefUtils.getDeviceFingerprint(ctx))
                 || !GCMRegistrar.isRegistered(ctx) || TextUtils.isEmpty(SharedPrefUtils.getServerDeviceId(ctx))) return;
         if (PushConnector.DEBUG) Log.d(TAG, "Device fingerprint update");
         XtremeRestClient.hitDeviceUpdate(ctx, new DeviceUpdateHandler(ctx, regId), regId);
+
     }
-    
+
+    void onStop() {
+
+        Intent activityStateIntent = new Intent(GCMIntentService.ACTIVITY_IN_BACKGROUND);
+        activityStateIntent.putExtra(GCMIntentService.ACTIVITY_IN_BACKGROUND, true);
+        pushConnector.getActivity().sendBroadcast(activityStateIntent);
+
+    }
+
     void onResume() {
 //    	checkConf(pushConnector.getActivity());
     }
@@ -154,10 +169,13 @@ public final class PushManager {
 
         Bundle extras = intent.getExtras();
 
-        if (intent == null || (extras = intent.getExtras()) == null) return;
+        if (extras == null) return;
 
         PushMessage pushMessage = extras.getParcelable(GCMIntentService.EXTRAS_PUSH_MESSAGE);
         boolean fromNotification = extras.getBoolean(GCMIntentService.EXTRAS_FROM_NOTIFICATION);
+
+        if (pushListener != null)
+            pushListener.onPushMessage(pushMessage);
 
         PushMessageDisplayHelper.displayPushMessage(pushConnector.getActivity(), pushConnector.getActivity()
                 .getSupportFragmentManager(), pushMessage, pushConnector.isResumed(), fromNotification, showDialog);
@@ -317,5 +335,9 @@ public final class PushManager {
             hashBuilder.append(config.hashCode());
         }
         return hashBuilder.toString();
+    }
+
+    public void setPushListener(PushListener pushListener) {
+        this.pushListener = pushListener;
     }
 }

@@ -11,6 +11,7 @@
 4.  [Sending your first Push](#first_push)
 5.  [Tagging your app to enable deeper audience analysis and segmentation](#tagging)
 6.  [Adjusting Location settings](#location_off)  
+7.  [Setting custom behavior on PushMessage arrival](#push_listener)
 
 [Appendix A: Getting an API Key for Google Cloud Messaging](#keys)
 
@@ -211,6 +212,17 @@ Set *locationCheckTimeout* to your desired location update frequency in minutes 
 		pushConnector = PushConnector.init(getSupportFragmentManager(), "XPUSH_APP_KEY", "GOOGLE_PROJECT_NUMBER", 30, 50 );
 ```
 
+### 7. Setting custom behavior on PushMessage arrival <a name="push_listener"></a>
+If you want to control when PushMessage arrives and what it contains you can create class that implements PushListener interface and pass it to PushConnector using the method:
+
+`PushConnector.setPushListener(PushListener pl)`.
+
+The PushListener interface has one method to implement:
+ 
+`PushListener.onPushMessage(PushMessage pm)`.
+
+This method will be called every time a new PushMessage will arrive. You can add your code to this method to handle the PushMessage in a custom way.
+
 <!--- ### 8. Adding a push notification inbox <a name="inbox"></a> 
 
 ##How to start Inbox activity		
@@ -220,7 +232,6 @@ if you want to start Inbox activity, you should use the following code snippet(a
  
  		startActivity(this, XPushLogActivity.class);
  --->
-
 
 ## Appendix A: Getting an API Key for Google Cloud Messaging <a name="keys"></a> 
 To integrate XtremePush with an Android app you need to upload your GCM API key to your app dashboard on xtremepush.com. This is because to send push notifications to Android devices, you need to set up a Google API Project, enable the GCM service and otain an API key for it.

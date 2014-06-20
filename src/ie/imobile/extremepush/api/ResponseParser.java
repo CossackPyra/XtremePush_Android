@@ -33,7 +33,7 @@ public class ResponseParser {
                 String regId = responseJson.getString("id");
                 return regId;
             }
-            
+
             String domain = responseJson.getString("domain");
 	        if (!SharedPrefUtils.getServerUrl(context).equalsIgnoreCase(domain)) {
 	        	SharedPrefUtils.setServerUrl(context, domain);

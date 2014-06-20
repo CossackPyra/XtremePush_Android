@@ -165,6 +165,7 @@ public class PushConnector extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
+        pushManager.onStop();
         MonitoringUtils.stopSession();
     }
 
@@ -239,4 +240,7 @@ public class PushConnector extends Fragment {
         return LocationsResponseHandler.getLastKnownLocations();
     }
 
+    public void setPushListener(PushListener pushListener) {
+        pushManager.setPushListener(pushListener);
+    }
 }

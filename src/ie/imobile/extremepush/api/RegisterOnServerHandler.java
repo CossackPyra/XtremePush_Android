@@ -15,6 +15,8 @@ import com.google.android.gcm.GCMRegistrar;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import org.apache.http.HttpStatus;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public final class RegisterOnServerHandler extends AsyncHttpResponseHandler {
 
@@ -27,6 +29,7 @@ public final class RegisterOnServerHandler extends AsyncHttpResponseHandler {
     private Long mTimeout;
     private Runnable mRunnable;
     private int mCurrentIteration;
+    private ReconnectDelay mReconnectDelay;
 
     public RegisterOnServerHandler(Context context, String aRegId, Long timeOut, int numberOfRetries) {
         init(context, aRegId, timeOut, numberOfRetries);
@@ -43,6 +46,7 @@ public final class RegisterOnServerHandler extends AsyncHttpResponseHandler {
         mHandler = new Handler();
         mTimeout = timeOut;
         mNumberOfRetries = numberOfRetries;
+        mReconnectDelay = new ExponentialDelay();
         mRunnable = new Runnable() {
             @Override
             public void run() {
@@ -58,7 +62,6 @@ public final class RegisterOnServerHandler extends AsyncHttpResponseHandler {
 
         final Context context = contextHolder.get();
         if (context == null) return;
-        if (needToResend(context, arg0)) return;
         if (PushConnector.DEBUG_LOG) {
         	LogEventsUtils.sendLogTextMessage(context, "Response:" + response );
         }
@@ -84,31 +87,37 @@ public final class RegisterOnServerHandler extends AsyncHttpResponseHandler {
         }
     }
 
-    private boolean needToResend(Context context, int arg0) {
-        switch (arg0) {
-            case HttpStatus.SC_BAD_GATEWAY:
-            case HttpStatus.SC_SERVICE_UNAVAILABLE:
-            case HttpStatus.SC_GATEWAY_TIMEOUT:
-                if (mCurrentIteration < mNumberOfRetries)
-                    mHandler.postDelayed(mRunnable, mTimeout);
-                mCurrentIteration++;
-                if (PushConnector.DEBUG) Log.d(TAG,
-                        context.getString(R.string.server_register_response_error) + ":" + arg0);
-                if (PushConnector.DEBUG_LOG) LogEventsUtils.sendLogTextMessage(context,
-                        context.getString(R.string.server_register_response_error) + ":" + arg0);
-                return true;
-            default:
-                return false;
-        }
-    }
-
     public void onFailure(Throwable arg0, String error) {
         Context context = contextHolder.get();
         if (context == null) return;
 
         if (PushConnector.DEBUG) Log.d(TAG, context.getString(R.string.server_register_error) + ":" + error);
         if (PushConnector.DEBUG_LOG) LogEventsUtils.sendLogTextMessage(context, context.getString(R.string.server_register_error) + ":" + error);
-        GCMRegistrar.unregister(context);
+
+        final JSONObject responseJson;
+        int code = -1;
+        try {
+            responseJson = new JSONObject(error);
+            code = responseJson.getInt("code");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        switch (code) {
+            case HttpStatus.SC_BAD_GATEWAY:
+            case HttpStatus.SC_SERVICE_UNAVAILABLE:
+            case HttpStatus.SC_GATEWAY_TIMEOUT:
+                if (mCurrentIteration < mNumberOfRetries) {
+                    if (PushConnector.DEBUG) LogEventsUtils.sendLogTextMessage(context, "Delayed registration on" + " : " +
+                            mReconnectDelay.getDelay(mTimeout, mCurrentIteration) / 1000 + " seconds.");
+                    mHandler.postDelayed(mRunnable, mReconnectDelay.getDelay(mTimeout, mCurrentIteration));
+                    mCurrentIteration++;
+                } else
+                    GCMRegistrar.unregister(context);
+                break;
+            default:
+                GCMRegistrar.unregister(context);
+        }
     }
 
 

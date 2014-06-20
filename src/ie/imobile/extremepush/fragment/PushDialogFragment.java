@@ -11,6 +11,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.text.TextUtils;
 
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
@@ -43,7 +44,7 @@ public final class PushDialogFragment extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.push_dialog_title);
         builder.setMessage(pushMessage.alert);
-        if (pushMessage.url != null) {
+        if (pushMessage.url != null && !TextUtils.isEmpty(pushMessage.url)) {
             builder.setPositiveButton(R.string.push_dialog_view, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
                     String serverDeviceId = SharedPrefUtils.getServerDeviceId(getActivity());

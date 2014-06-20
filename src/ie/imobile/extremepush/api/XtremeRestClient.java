@@ -16,6 +16,7 @@ import android.util.Log;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
 
 public final class XtremeRestClient {
 
@@ -27,6 +28,7 @@ public final class XtremeRestClient {
     }
 
     public static void registerOnServer(Context context, AsyncHttpResponseHandler responseHandler) {
+//        String url = "http://xtremepush.stage.mqd.me/errors/PushErrors/";
         String url = PushManager.serverUrl + "/push/api/deviceCreate";
         try {
             httpClient.setTimeout(0);
@@ -34,6 +36,10 @@ public final class XtremeRestClient {
             httpClient.post(null, url, RequestBuilder.buildJsonEntityForRegistration(context), "application/json",
                     responseHandler);
             if (PushConnector.DEBUG) LogEventsUtils.sendLogTextMessage(context, "Sent request to: " + url);
+//        RequestParams params = new RequestParams();
+//        params.put("key", "xpushKey1237");
+//        params.put("errorCode", "502");
+//        httpClient.get(url, params, responseHandler);
         } catch (UnsupportedEncodingException e) {
             Log.wtf(TAG, e);
         } catch (JSONException e) {

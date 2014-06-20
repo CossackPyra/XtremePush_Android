@@ -8,6 +8,7 @@ import ie.imobile.extremepush.api.model.PushMessage;
 import ie.imobile.extremepush.fragment.PushDialogFragment;
 import android.content.Context;
 import android.support.v4.app.FragmentManager;
+import android.text.TextUtils;
 
 public final class PushMessageDisplayHelper {
 
@@ -20,21 +21,26 @@ public final class PushMessageDisplayHelper {
         if (pushMessage == null || pushMessage.pushActionId == null
                 || pushMessage.pushActionId.equals(SharedPrefUtils.getLastPushId(context))) return;
 
-    	if (fromNotification && pushMessage.url != null) {
-            openPage(context, pushMessage);
-    	} else {
-	        if (!isVisible) {
-                if (showDialog) {
-                    PushDialogFragment fragment = PushDialogFragment.newInstance(pushMessage);
-                    FragmentTransaction ft = fm.beginTransaction();
-                    ft.add(fragment, "100500");
-                    ft.commitAllowingStateLoss();
-                } else {
-                    openPage(context, pushMessage);
-                }
-	        }
-    	}
+        if (isVisible) {
+            if (showDialog) {
+                PushDialogFragment fragment = PushDialogFragment.newInstance(pushMessage);
+                FragmentTransaction ft = fm.beginTransaction();
+                ft.add(fragment, "100500");
+                ft.commitAllowingStateLoss();
+            } else if (pushMessage.url != null && !TextUtils.isEmpty(pushMessage.url)) {
+                openPage(context, pushMessage);
+            }
+        }
 
+        if (fromNotification)
+            if (showDialog) {
+                PushDialogFragment fragment = PushDialogFragment.newInstance(pushMessage);
+                FragmentTransaction ft = fm.beginTransaction();
+                ft.add(fragment, "100500");
+                ft.commitAllowingStateLoss();
+            } else if (pushMessage.url != null && !TextUtils.isEmpty(pushMessage.url)) {
+                openPage(context, pushMessage);
+            }
     }
 
     private static void openPage(Context context, PushMessage pushMessage) {
