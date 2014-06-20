@@ -8,6 +8,7 @@ import java.util.HashMap;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -17,6 +18,7 @@ import android.util.Log;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Produce;
 import ie.imobile.extremepush.util.MonitoringUtils;
+import ie.imobile.extremepush.util.SharedPrefUtils;
 
 public class PushConnector extends Fragment {
 
@@ -44,8 +46,8 @@ public class PushConnector extends Fragment {
     private float locationDistance;
     private PushManager pushManager;
 
-//    private static String SERVER_URL = "https://xtremepush.stage.mqd.me";
-    private static String SERVER_URL = "https://xtremepush.com";
+    private static String SERVER_URL = "https://xtremepush.stage.mqd.me";
+//    private static String SERVER_URL = "https://xtremepush.com";
 
     public static PushConnector init(FragmentManager fm, String appKey, String GOOGLE_PROJECT_NUMBER, int locationCheckTimeout, float locationDistance) {
         PushConnector pushConnector = (PushConnector) fm.findFragmentByTag(FRAGMENT_TAG);
@@ -212,6 +214,10 @@ public class PushConnector extends Fragment {
     	pushManager.getPushlist(String.valueOf(offset), String.valueOf(limit));
     }
 
+    public void setShowAlertDialog(boolean showDialog) {
+        pushManager.setShowDialog(showDialog);
+    }
+
     public static void postInEventBus(Object event) {
         BUS.post(event);
     }
@@ -222,6 +228,10 @@ public class PushConnector extends Fragment {
 
     public static void unregisterInEventBus(Object obj) {
         BUS.unregister(obj);
+    }
+
+    public static void locationEnabled(Context aContext, boolean aLocationEnabled) {
+        SharedPrefUtils.setLocationEnabled(aContext, aLocationEnabled);
     }
 
     @Produce

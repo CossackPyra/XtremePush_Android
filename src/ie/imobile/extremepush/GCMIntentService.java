@@ -1,8 +1,6 @@
 package ie.imobile.extremepush;
 
-import ie.imobile.extremepush.api.LogResponseHandler;
 import ie.imobile.extremepush.api.ResponseParser;
-import ie.imobile.extremepush.api.XtremeRestClient;
 import ie.imobile.extremepush.api.model.PushMessage;
 import ie.imobile.extremepush.util.LogEventsUtils;
 import ie.imobile.extremepush.util.SharedPrefUtils;
@@ -25,7 +23,6 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.android.gcm.GCMBaseIntentService;
-import com.loopj.android.http.AsyncHttpResponseHandler;
 
 public final class GCMIntentService extends GCMBaseIntentService {
 
@@ -134,7 +131,8 @@ public final class GCMIntentService extends GCMBaseIntentService {
         long when = System.currentTimeMillis();
         NotificationManager notificationManager = (NotificationManager) context
                 .getSystemService(Context.NOTIFICATION_SERVICE);
-        Notification notification = new Notification(R.drawable.ic_stat_gcm, pushMessage.alert, when);
+        int notificationIcon = context.getApplicationContext().getApplicationInfo().icon;
+        Notification notification = new Notification(notificationIcon, pushMessage.alert, when);
         String title = context.getString(R.string.app_name);
 
         String mainActivityName = SharedPrefUtils.getMainActivityName(context);
@@ -151,6 +149,7 @@ public final class GCMIntentService extends GCMBaseIntentService {
         notificationIntent.setAction("open activity" + pushMessage.pushActionId);
         PendingIntent intent = PendingIntent.getActivity(context, 0, notificationIntent, PendingIntent.FLAG_ONE_SHOT);
         notification.setLatestEventInfo(context, title, pushMessage.alert, intent);
+        notification.icon = notificationIcon;
         notification.flags |= Notification.FLAG_AUTO_CANCEL;
         notificationManager.notify(Integer.parseInt(pushMessage.pushActionId), notification);
     }

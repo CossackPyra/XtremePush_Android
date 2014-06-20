@@ -1,0 +1,51 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.11.+'
+    }
+}
+
+apply plugin: 'android-library'
+
+android {
+    compileSdkVersion 17
+    buildToolsVersion "19.1.0"
+
+    sourceSets {
+        main.manifest.srcFile 'AndroidManifest.xml'
+        main.java.srcDirs = ['src']
+        main.res.srcDirs = ['res']
+        main.assets.srcDirs = ['assets']
+    }
+    
+    task setVersion(type: Exec, dependsOn: 'assembleRelease') {
+        commandLine './version.myscript'
+    }
+
+    task makeModuleDir(type: Copy, dependsOn: setVersion) {
+        from 'build/bundles/release'
+        into 'build/bundles/zip'
+        exclude { details -> details.file.name.contains('classes.jar') }
+    }
+
+    task makeJar(type: Jar, dependsOn: makeModuleDir) {
+        from 'build/classes/release'
+        def excludeConditions = ["**/R.class", "**/R\$*.class", "**/BuildConfig.class"]
+        exclude(excludeConditions)
+        doLast {
+            file('build/libs/XtremePush_lib.jar').renameTo(file('build/bundles/zip/libs/xtremepush_lib.jar'))
+        }
+    }
+
+    task pack(type: Zip, dependsOn: makeJar) {
+        from 'build/bundles/zip'
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:support-v4:19.1.0'
+}

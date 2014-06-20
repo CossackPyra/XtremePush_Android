@@ -15,15 +15,14 @@ public final class LocationAccessHelper implements LocationDialogFragment.OnButt
         this.fragment = fragment;
     }
 
-    public boolean checkLocationProviders() {
+    public void checkLocationProviders() {
+        if (!LocationUtils.isLocationEnabled(fragment.getActivity())) return;
         LocationManager locationManager = (LocationManager) fragment.getActivity()
                 .getSystemService(Context.LOCATION_SERVICE);
         if (!LocationUtils.isLocationProvidersEnabled(locationManager) &&
                 SharedPrefUtils.getPromptTurnLocation(fragment.getActivity())) {
             showEnableLocationProvidersDialog();
-            return false;
         }
-        return true;
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {

@@ -1,42 +1,67 @@
 package ie.imobile.extremepush.api;
 
-import android.os.Build;
-import android.telephony.TelephonyManager;
-import android.text.TextUtils;
+import android.os.Handler;
 import ie.imobile.extremepush.PushConnector;
 import ie.imobile.extremepush.R;
+import ie.imobile.extremepush.config.ConnectionConfig;
 import ie.imobile.extremepush.util.*;
-import ie.imobile.extremepush.util.CoarseLocationProvider.CoarseLocationListener;
 
 import java.lang.ref.WeakReference;
-import java.util.Locale;
 
 import android.content.Context;
-import android.location.Location;
 import android.util.Log;
 
 import com.google.android.gcm.GCMRegistrar;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
+import org.apache.http.HttpStatus;
+
 public final class RegisterOnServerHandler extends AsyncHttpResponseHandler {
 
     private static final String TAG = "RegisterOnServerHandler";
-    private final String regId;
+    private String regId;
 
     private WeakReference<Context> contextHolder;
+    private Handler mHandler;
+    private int mNumberOfRetries;
+    private Long mTimeout;
+    private Runnable mRunnable;
+    private int mCurrentIteration;
 
+    public RegisterOnServerHandler(Context context, String aRegId, Long timeOut, int numberOfRetries) {
+        init(context, aRegId, timeOut, numberOfRetries);
+    }
     public RegisterOnServerHandler(Context context, String aRegId) {
+        init(context, aRegId, ConnectionConfig.SERVER_CONNECTION_TIMEOUT,
+                ConnectionConfig.SERVER_CONNECTION_RETRIES);
+    }
+
+    private void init(Context context, String aRegId, Long timeOut, int numberOfRetries) {
         contextHolder = new WeakReference<Context>(context);
         regId = aRegId;
+        mCurrentIteration = 0;
+        mHandler = new Handler();
+        mTimeout = timeOut;
+        mNumberOfRetries = numberOfRetries;
+        mRunnable = new Runnable() {
+            @Override
+            public void run() {
+                Context context = contextHolder.get();
+                if (context == null) return; // No iterations context has been lost.
+                    XtremeRestClient.registerOnServer(context, RegisterOnServerHandler.this);
+
+            }
+        };
     }
 
     public void onSuccess(int arg0, String response) {
+
         final Context context = contextHolder.get();
         if (context == null) return;
+        if (needToResend(context, arg0)) return;
         if (PushConnector.DEBUG_LOG) {
         	LogEventsUtils.sendLogTextMessage(context, "Response:" + response );
         }
-
 
         if (PushConnector.DEBUG) Log.d(TAG, "Response: " + response);
 
@@ -49,40 +74,31 @@ public final class RegisterOnServerHandler extends AsyncHttpResponseHandler {
             if (PushConnector.DEBUG_LOG) LogEventsUtils.sendLogTextMessage(context, "Registred on server with id: "
                     + serverRegId);
 
-            String devicefinferpring = null;
-            if (!TextUtils.equals(createFingerpring(context), SharedPrefUtils.getDeviceFingerprint(context))) {
-                if (PushConnector.DEBUG) Log.d(TAG, "Device fingerprint update");
-                devicefinferpring = createFingerpring(context);
-            }
             SharedPrefUtils.setServerDeviceId(context, serverRegId);
-            final String finalDevicefinferpring = devicefinferpring == null ? SharedPrefUtils.getDeviceFingerprint(context) : devicefinferpring;
-            XtremeRestClient.hitDeviceUpdate(context, new AsyncHttpResponseHandler() {
-
-                @Override
-                public void onSuccess(String response) {
-                    super.onSuccess(response);
-                    if (PushConnector.DEBUG_LOG) {
-                        LogEventsUtils.sendLogTextMessage(context, "Response:" + response );
-                    }
-                    SharedPrefUtils.setDeviceFingerpirnt(context, finalDevicefinferpring);
-                    GCMRegistrar.setRegisteredOnServer(context, true);
-                    CoarseLocationProvider.requestCoarseLocation(context, new CoarseLocationListener() {
-
-                                                                      @Override
-                                                                      public void onCoarseLocationReceived(Location location) {
-                            XtremeRestClient.locationCheck(new LocationsResponseHandler(context),
-                                    SharedPrefUtils.getServerDeviceId(context), location);
-                    }
-                }, 60, 2000);
-                }
-
-            },
-            regId);
+            XtremeRestClient.hitDeviceUpdate(context, new DeviceUpdateHandler(context, regId), regId);
         } else {
             if (PushConnector.DEBUG) Log.d(TAG, context.getString(R.string.server_register_error));
             
             GCMRegistrar.unregister(context);
             SharedPrefUtils.setServerDeviceId(context, null);
+        }
+    }
+
+    private boolean needToResend(Context context, int arg0) {
+        switch (arg0) {
+            case HttpStatus.SC_BAD_GATEWAY:
+            case HttpStatus.SC_SERVICE_UNAVAILABLE:
+            case HttpStatus.SC_GATEWAY_TIMEOUT:
+                if (mCurrentIteration < mNumberOfRetries)
+                    mHandler.postDelayed(mRunnable, mTimeout);
+                mCurrentIteration++;
+                if (PushConnector.DEBUG) Log.d(TAG,
+                        context.getString(R.string.server_register_response_error) + ":" + arg0);
+                if (PushConnector.DEBUG_LOG) LogEventsUtils.sendLogTextMessage(context,
+                        context.getString(R.string.server_register_response_error) + ":" + arg0);
+                return true;
+            default:
+                return false;
         }
     }
 
@@ -95,27 +111,5 @@ public final class RegisterOnServerHandler extends AsyncHttpResponseHandler {
         GCMRegistrar.unregister(context);
     }
 
-    public static String createFingerpring(Context context) {
-        TelephonyManager tm = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
-        String countryCode = tm.getSimCountryIso();
-        String carrierName = tm.getNetworkOperatorName();
-        return generateConfigFingerprint(android.os.Build.BRAND,
-                Build.VERSION.SDK_INT,
-                android.os.Build.MODEL,
-                context.getResources().getConfiguration().locale.getCountry(),
-                carrierName,
-                LibVersion.VER,
-                TimeUtils.getUtcTimeZone(),
-                countryCode,
-                Locale.getDefault().getISO3Language());
-    }
-
-    private static String generateConfigFingerprint(Object... configs) {
-        StringBuilder hashBuilder = new StringBuilder();
-        for (Object config : configs) {
-            hashBuilder.append(config.hashCode());
-        }
-        return hashBuilder.toString();
-    }
 
 }

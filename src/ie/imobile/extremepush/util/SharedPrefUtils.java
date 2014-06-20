@@ -17,6 +17,7 @@ public final class SharedPrefUtils {
     private static final String SHARED_LAST_PUSH_ID = "last_push_id";
     private static final String SHARED_DEVICE_FINGERPING = "dev_finger";
     private static final String SHARED_PROMPT_TURN_LOCATION = "prompt_turn_location";
+    private static final String SHARED_LOCATION_ENABLED = "location_enabled";
 
     private static final String SHARED_SESSION_START = "start_session";
     private static final String SHARED_SESSION_DURATION = "duration_session";
@@ -37,7 +38,7 @@ public final class SharedPrefUtils {
     }
     
 
-    public static void setDeviceFingerpirnt(Context context, String fingerprint) {
+    public static void setDeviceFingerprint(Context context, String fingerprint) {
         SharedPreferences prefs = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(SHARED_DEVICE_FINGERPING, fingerprint);
@@ -145,4 +146,15 @@ public final class SharedPrefUtils {
         return prefs.getString(SHARED_LAST_PUSH_ID, null);
     }
     
+    public static void setLocationEnabled(Context context, boolean aLocationEnabled) {
+        SharedPreferences prefs = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean(SHARED_LOCATION_ENABLED, aLocationEnabled);
+        editor.commit();
+    }
+
+    public static boolean getLocationEnabled(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        return prefs.getBoolean(SHARED_LOCATION_ENABLED, true);
+    }
 }

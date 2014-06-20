@@ -1,6 +1,7 @@
 package ie.imobile.extremepush.util;
 
 import ie.imobile.extremepush.PushConnector;
+import ie.imobile.extremepush.util.LocationUtils;
 import android.content.Context;
 import android.location.Criteria;
 import android.location.Location;
@@ -20,6 +21,7 @@ public class CoarseLocationProvider {
     public static void requestCoarseLocation(Context context, final CoarseLocationListener coarseLocationListener,
     		long minTime, float minDistance) {
         
+        if (!LocationUtils.isLocationEnabled(context)) return;
     	final LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();
 	        criteria.setAccuracy(Criteria.ACCURACY_COARSE);

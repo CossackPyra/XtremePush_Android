@@ -1,6 +1,5 @@
 package ie.imobile.extremepush.api;
 
-import com.loopj.android.http.JsonHttpResponseHandler;
 import ie.imobile.extremepush.PushConnector;
 import ie.imobile.extremepush.PushManager;
 import ie.imobile.extremepush.util.LogEventsUtils;

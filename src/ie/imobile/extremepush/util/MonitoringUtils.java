@@ -46,12 +46,12 @@ public class MonitoringUtils {
 	}
 
     private static Map<Long, Long> readSessionMap() {
-        Map<Long, Long> map = null;
+        Map<Long, Long> map = new HashMap<Long, Long>();
         try {
             File sessionsFile=
                     new File(Environment.getExternalStorageDirectory(),
                             "SessionsLog.txt");
-            if (!sessionsFile.exists()) return new HashMap<Long, Long>();
+            if (!sessionsFile.exists()) return map;
             FileInputStream log = new FileInputStream(sessionsFile);
             ObjectInputStream iStream = new ObjectInputStream(log);
             map = (Map<Long, Long>) iStream.readObject();

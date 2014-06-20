@@ -1,15 +1,18 @@
 package ie.imobile.extremepush.api;
 
+import android.content.res.AssetManager;
+import android.text.TextUtils;
 import ie.imobile.extremepush.PushConnector;
+import ie.imobile.extremepush.R;
 import ie.imobile.extremepush.util.LibVersion;
 import ie.imobile.extremepush.util.SharedPrefUtils;
 import ie.imobile.extremepush.util.TimeUtils;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 import org.apache.http.entity.StringEntity;
@@ -70,7 +73,8 @@ public final class RequestBuilder {
         
         jsonEntity.put("device_id", deviceId);
         jsonEntity.put("device_os", Build.VERSION.SDK_INT);
-        jsonEntity.put("device_type", android.os.Build.MODEL);
+        jsonEntity.put("device_type", Build.MANUFACTURER);
+        jsonEntity.put("device_model", getReadableModel(context, android.os.Build.MODEL));
 
         jsonEntity.put("environment", "production");
         
@@ -90,6 +94,35 @@ public final class RequestBuilder {
         if (PushConnector.DEBUG) Log.d(TAG, "EntityForRegistration: " + jsonString);
 
         return new StringEntity(jsonString, HTTP.UTF_8);
+    }
+
+    private static String getReadableModel(Context context, String model) {
+        Properties props=new Properties();
+        InputStream inputStream = context.getResources().openRawResource(R.raw.android_models);
+
+        try {
+            props.load(inputStream);
+        } catch (IOException e) {
+            Log.d(TAG, "Couldn't load device models.");
+            e.printStackTrace();
+            return model;
+        } finally {
+            try {
+                inputStream.close();
+            } catch (IOException e) {
+                Log.d(TAG, "Error closing android_models.properties");
+                e.printStackTrace();
+            }
+        }
+        String readableModel = props.getProperty(model);
+
+        if (readableModel == null) return model;
+
+        if (readableModel.isEmpty()) {
+            readableModel = model.replaceAll("_", " ");
+        }
+
+        return readableModel;
     }
 
     static StringEntity buildJsonEntityForUpdate(Context context, String regId) throws UnsupportedEncodingException,
@@ -128,7 +161,8 @@ public final class RequestBuilder {
 
         jsonEntity.put("device_id", deviceId);
         jsonEntity.put("device_os", Build.VERSION.SDK_INT);
-        jsonEntity.put("device_type", android.os.Build.MODEL);
+        jsonEntity.put("device_type", Build.MANUFACTURER);
+        jsonEntity.put("device_model", getReadableModel(context, android.os.Build.MODEL));
 
         jsonEntity.put("environment", "production");
 

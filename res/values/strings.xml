@@ -37,5 +37,7 @@
     <string name="ptr_last_updated">Updated: %1$s</string>
     <string name="location_providers_dialog_negative">Cancel</string>
     <string name="prompt_location_dialog_message">Don\'t ask again</string>
+    <string name="server_register_response_error">Got error response on device register</string>
+    <string name="device_update_response_error">Error on deviceUpdate</string>
 
 </resources>

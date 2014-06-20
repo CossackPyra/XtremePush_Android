@@ -28,7 +28,7 @@ public class LocationReceiver extends BroadcastReceiver {
 	                 "LocationLog.txt");
 /*		Toast
 			.makeText(context,
-								"Location polling every õ minutes begun",
+								"Location polling every ? minutes begun",
 								Toast.LENGTH_LONG)
 			.show();*/
 

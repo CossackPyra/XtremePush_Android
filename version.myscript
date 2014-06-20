@@ -1,0 +1,8 @@
+#!/bin/bash
+
+ver=$(date "+%d%m%Y");
+echo "package ie.imobile.extremepush.util;
+
+public class LibVersion {
+    public static final String VER = \"a-$ver\";
+}" > $(pwd)/src/ie/imobile/extremepush/util/LibVersion.java
