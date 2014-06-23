@@ -42,7 +42,7 @@ This document should provide all the info you need to integrate your Android app
 
 2. Next add the following permissions to your Android Manifest
 
-```xml
+    ```xml
     <!-- GCM requires a Google account. -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
 
@@ -53,43 +53,42 @@ This document should provide all the info you need to integrate your Android app
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-```
+    ```
 
    You must also add a custom permission to your app so only this app can receive messages. **NOTE: the permission must be called YOUR_PACKAGE.permission.C2D_MESSAGE, where YOUR_PACKAGE is the application's package name.**
     
-```xml
-<!--Creates a custom permission so only this app can receive its messages.-->
-<permission
- android:name="YOUR_PACAKAGE.permission.C2D_MESSAGE"
- android:protectionLevel="signature" />
+    ```xml
+    <!--Creates a custom permission so only this app can receive its messages.-->
+    <permission
+        android:name="YOUR_PACAKAGE.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
 
-<uses-permission android:name="com.example.xtremepushtestapp.permission.C2D_MESSAGE" />
+    <uses-permission android:name="com.example.xtremepushtestapp.permission.C2D_MESSAGE" />
 
-<!-- This app has permission to register and receive data message. -->
-<uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
-```
+    <!-- This app has permission to register and receive data message. -->
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    ```
 
 3.  Inside the application element <application></application> in you android manifest add the following:
 
 
-```xml
-<receiver
-            android:name="ie.imobile.extremepush.GCMReceiver"
-            android:permission="com.google.android.c2dm.permission.SEND" >
-            <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE"/>
-                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
-                <category android:name="YOUR_PACKAGE" />
-            </intent-filter>
-        </receiver>
+    ```xml
+    <receiver
+        android:name="ie.imobile.extremepush.GCMReceiver"
+        android:permission="com.google.android.c2dm.permission.SEND" >
+        <intent-filter>
+            <action android:name="com.google.android.c2dm.intent.RECEIVE"/>
+            <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+            <category android:name="YOUR_PACKAGE" />
+        </intent-filter>
+    </receiver>
 
-        <service android:name="ie.imobile.extremepush.GCMIntentService" />
-        <receiver android:name="ie.imobile.extremepush.location.ProxymityAlertReceiver" />
-        <activity
-            android:name="ie.imobile.extremepush.ui.WebViewActivity"
-            android:exported="false" />
-
-```
+    <service android:name="ie.imobile.extremepush.GCMIntentService" />
+    <receiver android:name="ie.imobile.extremepush.location.ProxymityAlertReceiver" />
+    <activity
+        android:name="ie.imobile.extremepush.ui.WebViewActivity"
+        android:exported="false" />
+    ```
    
 **Note: in <category android:name="YOUR_PACKAGE" make sure you replace YOUR_PACKAGE with the application's package name**
 
