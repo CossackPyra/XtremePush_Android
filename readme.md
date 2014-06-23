@@ -6,12 +6,12 @@
 [Integrating](#integrating)
 
 1.  [Download Library](#download)
-2.  [Add Xtreme Push to your Project](#add_xtreme)
+2.  [Add XtremePush to your Project](#add_xtreme)
 3.  [Connect your App to the XtremePush Platform](#connect_xtreme)
 4.  [Sending your first Push](#first_push)
 5.  [Tagging your app to enable deeper audience analysis and segmentation](#tagging)
-6.  [Adjusting Location settings](#location_off)  
-7.  [Setting custom behavior on PushMessage arrival](#push_listener)
+6.  [Turning off location or adjusting location settings](#location_off)  
+7.  [Setting custom behaviour on PushMessage arrival](#push_listener)
 
 [Appendix A: Getting an API Key for Google Cloud Messaging](#keys)
 
@@ -22,7 +22,7 @@
 
 
 ## About
-This document should provide all the info you need to integrate your Android app with the XtremePush plaform and send your first push via the platform.
+This document should provide all the info you need to integrate your Android app with the XtremePush platform and send your first push via the platform.
 
 ## Integrating
 
@@ -36,7 +36,7 @@ This document should provide all the info you need to integrate your Android app
   ![Android library files](http://cl.ly/image/221m1w3y3V11/android_folder_files.png)
 
 ### 2. Add Xtreme Push to your Project<a name="add_xtreme"></a> 
-1. Import XtremePush_Android-master/ into your IDE. Add it as a library to your project as per your IDE for example on eclipse adding the lbrary looks like this:
+1. Import XtremePush_Android-master/ into your IDE. Add it as a library to your project as per your IDE for example on eclipse adding the library looks like this:
 
    ![Adding library on eclipse](http://cl.ly/image/0Z3G3R2y1M2S/eclipse_add_library.png)
 
@@ -95,7 +95,7 @@ This document should provide all the info you need to integrate your Android app
 
 ### 3. Connect your App to the XtremePush Platform <a name="connect_xtreme"></a> 
 
-1. Add your App on the platfrom by clicking "Integrate Push Features" on your XtremePush Dashboard at xtremepush.com
+1. Add your App on the platform by clicking "Integrate Push Features" on your XtremePush Dashboard at xtremepush.com
    
    ![Adding your app on the platform click integrate push features](http://cl.ly/image/050s3O0F2N2N/integrate_app.png)
 
@@ -152,7 +152,7 @@ Finally further down in the main activity add the following two methods:
 
 ### 4. Sending your first Push <a name="first_push"></a> 
 
-1. To send a basic push go to your app home and select create campaign. The first step is to name your camapaign and add some content for the push. In this section you can also link to app pages, urls, or a custom html page for a richer push but for now we will just add text for a simple push.
+1. To send a basic push go to your app home and select create campaign. The first step is to name your campaign and add some content for the push. In this section you can also link to app pages, urls, or a custom html page for a richer push but for now we will just add text for a simple push.
 
    ![ Adding Content ](http://cl.ly/image/2S1f1R1K1J47/create_campaign_content.png)
 
@@ -160,11 +160,11 @@ Finally further down in the main activity add the following two methods:
    
    ![ Selecting a segment ](http://cl.ly/image/0Q260e123V44/add_segment.png)
 
-3. Click next and you will be taken to location, for your first push you will not be tieing it to a location so click next and you are taken to schedule. In schedule the default selection is Send Now and to test your first push you will want to keep it that way.
+3. Click next and you will be taken to location, for your first push you will not be tying it to a location so click next and you are taken to schedule. In schedule the default selection is Send Now and to test your first push you will want to keep it that way.
 
    ![Schedule your push](http://cl.ly/image/0r2913470O2g/add_schedule.png) 
 
-4. Click next and you wil be taken to platform. Select Android as your platform. 
+4. Click next and you will be taken to platform. Select Android as your platform. 
 
    ![Configure your platform](http://cl.ly/image/2q2P2U141M1o/push_add_android.png)
 
@@ -196,8 +196,25 @@ In the default configuration described above location is switched on to allow yo
 -->
 
 
-### 6. Adjusting Location settings <a name="location_off"></a>
-If you want to keep the location features but want to manage the trade off between the sensitivity of location detection and the impact on battery life then you have the option to  set the frequency of location updates. This can be done by setting an additional two values when initialisng XtremePush in the onCreate method of your main activity. These are *locationCheckTimeout* and *locationDistance* :
+### 6. Turning off location or adjusting location settings <a name="location_off"></a>
+
+#### Turn off Location
+To turn off the location features set *locationEnabled* false before you initialise XtremePush in the onCreate method of your main activity as follows: 
+
+```objc
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+		
+		// Turn off location
+		PushConnector.locationEnabled(getApplicationContext(), false);
+
+		// initialise the xtremepush connector here        
+		pushConnector = PushConnector.init(getSupportFragmentManager(), XPUSH_APP_KEY, GOOGLE_PROJECT_NUMBER);    
+```
+#### Adjust Location
+
+If you need to keep the location features but want to manage the trade off between the sensitivity of location detection and the impact on battery life then you have the option to  set the frequency of location updates. This can be done by setting an additional two values when initialising XtremePush in the onCreate method of your main activity. These are *locationCheckTimeout* and *locationDistance* :
 		
 `init(FragmentManager fm, String appKey, String projectNumber, int locationCheckTimeout, float locationDistance)`.
 	
@@ -212,7 +229,7 @@ Set *locationCheckTimeout* to your desired location update frequency in minutes 
 		pushConnector = PushConnector.init(getSupportFragmentManager(), "XPUSH_APP_KEY", "GOOGLE_PROJECT_NUMBER", 30, 50 );
 ```
 
-### 7. Setting custom behavior on PushMessage arrival <a name="push_listener"></a>
+### 7. Setting custom behaviour on PushMessage arrival <a name="push_listener"></a>
 If you want to control when PushMessage arrives and what it contains you can create class that implements PushListener interface and pass it to PushConnector using the method:
 
 `PushConnector.setPushListener(PushListener pl)`.
@@ -228,14 +245,14 @@ This method will be called every time a new PushMessage will arrive. You can add
 ##How to start Inbox activity		
 
 
-if you want to start Inbox activity, you should use the following code snippet(activity must be registred in manifest file)
+if you want to start Inbox activity, you should use the following code snippet(activity must be registered in manifest file)
  
  		startActivity(this, XPushLogActivity.class);
  --->
 
 ## Appendix A: Getting an API Key for Google Cloud Messaging <a name="keys"></a> 
-To integrate XtremePush with an Android app you need to upload your GCM API key to your app dashboard on xtremepush.com. This is because to send push notifications to Android devices, you need to set up a Google API Project, enable the GCM service and otain an API key for it.
-In this section we will summarise the main steps involved. You can also find Google's own guide to setting up a Google API Project and otaining an API key for the GCM service [here](http://developer.android.com/google/gcm/gs.html).
+To integrate XtremePush with an Android app you need to upload your GCM API key to your app dashboard on xtremepush.com. This is because to send push notifications to Android devices, you need to set up a Google API Project, enable the GCM service and obtain an API key for it.
+In this section we will summarise the main steps involved. You can also find Google's own guide to setting up a Google API Project and obtaining an API key for the GCM service [here](http://developer.android.com/google/gcm/gs.html).
 
 The first step is to:
 - Go to: https://console.developers.google.com/
