@@ -11,7 +11,7 @@
 4.  [Sending your first Push](#first_push)
 5.  [Tagging your app to enable deeper audience analysis and segmentation](#tagging)
 6.  [Turning off location or adjusting location settings](#location_off)  
-7.  [Setting custom behaviour on PushMessage arrival](#push_listener)
+7.  [Setting custom behaviour on push notification arrival](#push_listener)
 
 [Appendix A: Getting an API Key for Google Cloud Messaging](#keys)
 
@@ -228,8 +228,8 @@ Set *locationCheckTimeout* to your desired location update frequency in minutes 
 		pushConnector = PushConnector.init(getSupportFragmentManager(), "XPUSH_APP_KEY", "GOOGLE_PROJECT_NUMBER", 30, 50 );
 ```
 
-### 7. Setting custom behaviour on PushMessage arrival <a name="push_listener"></a>
-If you want to control when PushMessage arrives and what it contains you can create class that implements PushListener interface and pass it to PushConnector using the method:
+### 7. Setting custom behaviour on push notification arrival <a name="push_listener"></a>
+If you want to control when a push notification arrives and what it contains you can create a class that implements the PushListener interface and pass it to PushConnector using the method:
 
 `PushConnector.setPushListener(PushListener pl)`.
 
@@ -237,7 +237,7 @@ The PushListener interface has one method to implement:
  
 `PushListener.onPushMessage(PushMessage pm)`.
 
-This method will be called every time a new PushMessage will arrive. You can add your code to this method to handle the PushMessage in a custom way.
+This method will be called every time a new Push Message  arrives. You can add your own code to this method to handle the *PushMessage* in a custom way.
 
 <!--- ### 8. Adding a push notification inbox <a name="inbox"></a> 
 
