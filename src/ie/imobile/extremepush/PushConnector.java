@@ -46,8 +46,7 @@ public class PushConnector extends Fragment {
     private float locationDistance;
     private PushManager pushManager;
 
-    private static String SERVER_URL = "https://xtremepush.stage.mqd.me";
-//    private static String SERVER_URL = "https://xtremepush.com";
+    private static String SERVER_URL = "https://xtremepush.com";
 
     public static PushConnector init(FragmentManager fm, String appKey, String GOOGLE_PROJECT_NUMBER, int locationCheckTimeout, float locationDistance) {
         PushConnector pushConnector = (PushConnector) fm.findFragmentByTag(FRAGMENT_TAG);
