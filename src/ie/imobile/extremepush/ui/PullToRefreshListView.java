@@ -1,4 +1,4 @@
-package ie.imobile.extremepush.util;
+package ie.imobile.extremepush.ui;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -7,6 +7,7 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.animation.*;
 import android.view.animation.Animation.AnimationListener;
 import android.widget.*;
+import ie.imobile.extremepush.util.XR;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

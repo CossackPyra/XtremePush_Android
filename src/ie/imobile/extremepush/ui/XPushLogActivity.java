@@ -14,8 +14,7 @@ import ie.imobile.extremepush.api.XtremeRestClient;
 import ie.imobile.extremepush.api.model.EventsPushlistWrapper;
 import ie.imobile.extremepush.api.model.PushmessageListItem;
 import ie.imobile.extremepush.util.LogEventsUtils;
-import ie.imobile.extremepush.util.PullToRefreshListView;
-import ie.imobile.extremepush.util.PullToRefreshListView.OnRefreshListener;
+import ie.imobile.extremepush.ui.PullToRefreshListView.OnRefreshListener;
 import ie.imobile.extremepush.util.SharedPrefUtils;
 import ie.imobile.extremepush.util.XR;
 
