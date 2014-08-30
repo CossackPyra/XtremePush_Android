@@ -86,11 +86,11 @@ public class XR {
         id.ptr_id_image = resources.getIdentifier("ptr_id_image", "id", packageName);
         id.ptr_id_spinner = resources.getIdentifier("ptr_id_spinner", "id", packageName);
 
-        layout.location_dialog = resources.getIdentifier("location_dialog", "id", packageName);
-        layout.activity_webview = resources.getIdentifier("activity_webview", "id", packageName);
-        layout.xpush_layout_item_view = resources.getIdentifier("xpush_layout_item_view", "id", packageName);
-        layout.ptr_header = resources.getIdentifier("ptr_header", "id", packageName);
-        layout.xpush_log_list = resources.getIdentifier("xpush_log_list", "id", packageName);
+        layout.location_dialog = resources.getIdentifier("location_dialog", "layout", packageName);
+        layout.activity_webview = resources.getIdentifier("activity_webview", "layout", packageName);
+        layout.xpush_layout_item_view = resources.getIdentifier("xpush_layout_item_view", "layout", packageName);
+        layout.ptr_header = resources.getIdentifier("ptr_header", "layout", packageName);
+        layout.xpush_log_list = resources.getIdentifier("xpush_log_list", "layout", packageName);
 
         raw.android_models = resources.getIdentifier("android_models", "raw", packageName);
     }
