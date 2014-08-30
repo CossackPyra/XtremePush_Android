@@ -1,6 +1,9 @@
 <span style="color: #0086cf;">Xtreme</span><span style="color: #787878;">Push</span> Android integration guide  
 ==================
 
+<span style="color:red">Version with runtime R ids</span>
+
+
 [About](#about)
 
 [Integrating](#integrating)
