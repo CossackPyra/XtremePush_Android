@@ -4,58 +4,52 @@ import android.content.Context;
 import android.content.res.Resources;
 
 public class XR {
-    public class string {
-        public int app_name;
-        public int gcm_error;
-        public int gcm_registered;
-        public int device_update_response_error;
-        public int server_register_error;
-        public int location_providers_dialog_positive;
-        public int location_providers_dialog_negative;
-        public int push_dialog_title;
-        public int push_dialog_view;
-        public int push_dialog_close;
-        public int ptr_pull_to_refresh;
-        public int ptr_release_to_refresh;
-        public int ptr_refreshing;
-        public int ptr_last_updated;
+    public static class string {
+        public static int app_name;
+        public static int gcm_error;
+        public static int gcm_registered;
+        public static int device_update_response_error;
+        public static int server_register_error;
+        public static int location_providers_dialog_positive;
+        public static int location_providers_dialog_negative;
+        public static int push_dialog_title;
+        public static int push_dialog_view;
+        public static int push_dialog_close;
+        public static int ptr_pull_to_refresh;
+        public static int ptr_release_to_refresh;
+        public static int ptr_refreshing;
+        public static int ptr_last_updated;
     }
 
-    public class id {
-        public int ask_location;
-        public int webview_webview;
-        public int webview_close;
-        public int webview_share;
-        public int webview_view_in_browser;
-        public int messageTextView;
-        public int timeTextView;
-        public int arrow;
-        public int bg;
-        public int pull_to_refresh_listview;
-        public int ptr_id_header;
-        public int ptr_id_text;
-        public int ptr_id_last_updated;
-        public int ptr_id_image;
-        public int ptr_id_spinner;
+    public static class id {
+        public static int ask_location;
+        public static int webview_webview;
+        public static int webview_close;
+        public static int webview_share;
+        public static int webview_view_in_browser;
+        public static int messageTextView;
+        public static int timeTextView;
+        public static int arrow;
+        public static int bg;
+        public static int pull_to_refresh_listview;
+        public static int ptr_id_header;
+        public static int ptr_id_text;
+        public static int ptr_id_last_updated;
+        public static int ptr_id_image;
+        public static int ptr_id_spinner;
     }
 
-    public class layout {
-        public int location_dialog;
-        public int activity_webview;
-        public int xpush_layout_item_view;
-        public int ptr_header;
-        public int xpush_log_list;
+    public static class layout {
+        public static int location_dialog;
+        public static int activity_webview;
+        public static int xpush_layout_item_view;
+        public static int ptr_header;
+        public static int xpush_log_list;
     }
 
-    public class raw {
-        public int android_models;
+    public static class raw {
+        public static int android_models;
     }
-
-
-    public static string string;
-    public static raw raw;
-    public static layout layout;
-    public static id id;
 
     public static void init(Context context) {
         String packageName = context.getPackageName();
@@ -98,6 +92,6 @@ public class XR {
         layout.ptr_header = resources.getIdentifier("ptr_header", "id", packageName);
         layout.xpush_log_list = resources.getIdentifier("xpush_log_list", "id", packageName);
 
-        raw.android_models = resources.getIdentifier("android_models", "id", packageName);
+        raw.android_models = resources.getIdentifier("android_models", "raw", packageName);
     }
 }
