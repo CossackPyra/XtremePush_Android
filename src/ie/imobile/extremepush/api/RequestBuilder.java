@@ -3,7 +3,6 @@ package ie.imobile.extremepush.api;
 import android.content.res.AssetManager;
 import android.text.TextUtils;
 import ie.imobile.extremepush.PushConnector;
-import ie.imobile.extremepush.R;
 import ie.imobile.extremepush.util.LibVersion;
 import ie.imobile.extremepush.util.SharedPrefUtils;
 import ie.imobile.extremepush.util.TimeUtils;
@@ -15,6 +14,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.*;
 import java.util.Map.Entry;
 
+import ie.imobile.extremepush.util.XR;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.protocol.HTTP;
 import org.json.JSONArray;
@@ -98,7 +98,7 @@ public final class RequestBuilder {
 
     private static String getReadableModel(Context context, String model) {
         Properties props=new Properties();
-        InputStream inputStream = context.getResources().openRawResource(R.raw.android_models);
+        InputStream inputStream = context.getResources().openRawResource(XR.raw.android_models);
 
         try {
             props.load(inputStream);

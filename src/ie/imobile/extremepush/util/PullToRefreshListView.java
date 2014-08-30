@@ -1,31 +1,15 @@
 package ie.imobile.extremepush.util;
 
-import ie.imobile.extremepush.R;
+import android.content.Context;
+import android.util.AttributeSet;
+import android.view.*;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+import android.view.animation.*;
+import android.view.animation.Animation.AnimationListener;
+import android.widget.*;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import android.content.Context;
-import android.util.AttributeSet;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
-import android.view.ViewTreeObserver.OnGlobalLayoutListener;
-import android.view.animation.Animation;
-import android.view.animation.Animation.AnimationListener;
-import android.view.animation.LinearInterpolator;
-import android.view.animation.OvershootInterpolator;
-import android.view.animation.RotateAnimation;
-import android.view.animation.TranslateAnimation;
-import android.widget.AdapterView;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 /**
  * A generic, customizable Android ListView implementation that has 'Pull to Refresh' functionality.
@@ -240,17 +224,17 @@ public class PullToRefreshListView extends ListView{
     private void init(){
         setVerticalFadingEdgeEnabled(false);
 
-        headerContainer = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.ptr_header, null);
-        header = (RelativeLayout) headerContainer.findViewById(R.id.ptr_id_header);
-        text = (TextView) header.findViewById(R.id.ptr_id_text);
-        lastUpdatedTextView = (TextView) header.findViewById(R.id.ptr_id_last_updated);
-        image = (ImageView) header.findViewById(R.id.ptr_id_image);
-        spinner = (ProgressBar) header.findViewById(R.id.ptr_id_spinner);
+        headerContainer = (LinearLayout) LayoutInflater.from(getContext()).inflate(XR.layout.ptr_header, null);
+        header = (RelativeLayout) headerContainer.findViewById(XR.id.ptr_id_header);
+        text = (TextView) header.findViewById(XR.id.ptr_id_text);
+        lastUpdatedTextView = (TextView) header.findViewById(XR.id.ptr_id_last_updated);
+        image = (ImageView) header.findViewById(XR.id.ptr_id_image);
+        spinner = (ProgressBar) header.findViewById(XR.id.ptr_id_spinner);
 
-        pullToRefreshText = getContext().getString(R.string.ptr_pull_to_refresh);
-        releaseToRefreshText = getContext().getString(R.string.ptr_release_to_refresh);
-        refreshingText = getContext().getString(R.string.ptr_refreshing);
-        lastUpdatedText = getContext().getString(R.string.ptr_last_updated);
+        pullToRefreshText = getContext().getString(XR.string.ptr_pull_to_refresh);
+        releaseToRefreshText = getContext().getString(XR.string.ptr_release_to_refresh);
+        refreshingText = getContext().getString(XR.string.ptr_refreshing);
+        lastUpdatedText = getContext().getString(XR.string.ptr_last_updated);
 
         flipAnimation = new RotateAnimation(0, -180, RotateAnimation.RELATIVE_TO_SELF, 0.5f, RotateAnimation.RELATIVE_TO_SELF, 0.5f);
         flipAnimation.setInterpolator(new LinearInterpolator());

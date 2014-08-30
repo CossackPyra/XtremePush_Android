@@ -2,7 +2,6 @@ package ie.imobile.extremepush.api;
 
 import android.os.Handler;
 import ie.imobile.extremepush.PushConnector;
-import ie.imobile.extremepush.R;
 import ie.imobile.extremepush.config.ConnectionConfig;
 import ie.imobile.extremepush.util.*;
 
@@ -80,7 +79,7 @@ public final class RegisterOnServerHandler extends AsyncHttpResponseHandler {
             SharedPrefUtils.setServerDeviceId(context, serverRegId);
             XtremeRestClient.hitDeviceUpdate(context, new DeviceUpdateHandler(context, regId), regId);
         } else {
-            if (PushConnector.DEBUG) Log.d(TAG, context.getString(R.string.server_register_error));
+            if (PushConnector.DEBUG) Log.d(TAG, context.getString(XR.string.server_register_error));
             
             GCMRegistrar.unregister(context);
             SharedPrefUtils.setServerDeviceId(context, null);
@@ -91,8 +90,8 @@ public final class RegisterOnServerHandler extends AsyncHttpResponseHandler {
         Context context = contextHolder.get();
         if (context == null) return;
 
-        if (PushConnector.DEBUG) Log.d(TAG, context.getString(R.string.server_register_error) + ":" + error);
-        if (PushConnector.DEBUG_LOG) LogEventsUtils.sendLogTextMessage(context, context.getString(R.string.server_register_error) + ":" + error);
+        if (PushConnector.DEBUG) Log.d(TAG, context.getString(XR.string.server_register_error) + ":" + error);
+        if (PushConnector.DEBUG_LOG) LogEventsUtils.sendLogTextMessage(context, context.getString(XR.string.server_register_error) + ":" + error);
 
         final JSONObject responseJson;
         int code = -1;

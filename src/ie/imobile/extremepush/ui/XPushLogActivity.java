@@ -1,7 +1,14 @@
 package ie.imobile.extremepush.ui;
 
+import android.app.Activity;
+import android.os.Bundle;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.squareup.otto.Subscribe;
 import ie.imobile.extremepush.PushConnector;
-import ie.imobile.extremepush.R;
 import ie.imobile.extremepush.api.EventResponseHandler;
 import ie.imobile.extremepush.api.XtremeRestClient;
 import ie.imobile.extremepush.api.model.EventsPushlistWrapper;
@@ -10,15 +17,7 @@ import ie.imobile.extremepush.util.LogEventsUtils;
 import ie.imobile.extremepush.util.PullToRefreshListView;
 import ie.imobile.extremepush.util.PullToRefreshListView.OnRefreshListener;
 import ie.imobile.extremepush.util.SharedPrefUtils;
-import android.app.Activity;
-import android.os.Bundle;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.AbsListView;
-import android.widget.AbsListView.OnScrollListener;
-
-import com.loopj.android.http.AsyncHttpResponseHandler;
-import com.squareup.otto.Subscribe;
+import ie.imobile.extremepush.util.XR;
 
 
 public class XPushLogActivity extends Activity implements OnScrollListener{
@@ -33,8 +32,8 @@ public class XPushLogActivity extends Activity implements OnScrollListener{
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setContentView(R.layout.xpush_log_list);
-        listView = (PullToRefreshListView) findViewById(R.id.pull_to_refresh_listview);
+        setContentView(XR.layout.xpush_log_list);
+        listView = (PullToRefreshListView) findViewById(XR.id.pull_to_refresh_listview);
         
         listView.setOnRefreshListener(new OnRefreshListener() {
             @Override

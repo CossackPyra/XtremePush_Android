@@ -5,6 +5,7 @@ import ie.imobile.extremepush.api.XtremeRestClient;
 import ie.imobile.extremepush.api.model.PushMessage;
 import ie.imobile.extremepush.util.LogEventsUtils;
 import ie.imobile.extremepush.util.SharedPrefUtils;
+import ie.imobile.extremepush.util.XR;
 
 import java.io.IOException;
 
@@ -79,7 +80,7 @@ public final class GCMIntentService extends GCMBaseIntentService {
     @Override
     protected void onRegistered(Context context, String registrationId) {
         if (PushConnector.DEBUG) Log.d(TAG, "Device registered: regId = " + registrationId);
-        if (PushConnector.DEBUG) LogEventsUtils.sendLogTextMessage(context, getString(R.string.gcm_registered));
+        if (PushConnector.DEBUG) LogEventsUtils.sendLogTextMessage(context, getString(XR.string.gcm_registered));
         sendBroadcast(new Intent(ACTION_REGISTER_ON_SERVER).putExtra(EXTRAS_REG_ID, registrationId));
     }
 
@@ -145,7 +146,7 @@ public final class GCMIntentService extends GCMBaseIntentService {
     @Override
     public void onError(Context context, String errorId) {
         if (PushConnector.DEBUG) Log.wtf(TAG, "Received error: " + errorId);
-        LogEventsUtils.sendLogTextMessage(context, getString(R.string.gcm_error, errorId));
+        LogEventsUtils.sendLogTextMessage(context, getString(XR.string.gcm_error, errorId));
     }
 
     @Override
@@ -158,7 +159,7 @@ public final class GCMIntentService extends GCMBaseIntentService {
         NotificationManager notificationManager = (NotificationManager) context
                 .getSystemService(Context.NOTIFICATION_SERVICE);
         int notificationIcon = context.getApplicationContext().getApplicationInfo().icon;
-        String title = context.getString(R.string.app_name);
+        String title = context.getString(XR.string.app_name);
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context)
                 .setSmallIcon(notificationIcon)
                 .setContentTitle(title)

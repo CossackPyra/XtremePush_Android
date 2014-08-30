@@ -9,6 +9,7 @@ import android.util.Log;
 import com.google.android.gcm.GCMRegistrar;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
+import ie.imobile.extremepush.util.*;
 import org.apache.http.HttpStatus;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,15 +18,8 @@ import java.lang.ref.WeakReference;
 
 import ie.imobile.extremepush.PushConnector;
 import ie.imobile.extremepush.PushManager;
-import ie.imobile.extremepush.R;
 import ie.imobile.extremepush.config.ConnectionConfig;
-import ie.imobile.extremepush.util.CoarseLocationProvider;
 import ie.imobile.extremepush.util.CoarseLocationProvider.CoarseLocationListener;
-import ie.imobile.extremepush.util.ExponentialDelay;
-import ie.imobile.extremepush.util.FingerPrintManager;
-import ie.imobile.extremepush.util.LogEventsUtils;
-import ie.imobile.extremepush.util.ReconnectDelay;
-import ie.imobile.extremepush.util.SharedPrefUtils;
 
 public class DeviceUpdateHandler extends AsyncHttpResponseHandler {
 
@@ -101,9 +95,9 @@ public class DeviceUpdateHandler extends AsyncHttpResponseHandler {
                     mHandler.postDelayed(mRunnable, mTimeout);
                 mCurrentIteration++;
                 if (PushConnector.DEBUG) Log.d(TAG,
-                        context.getString(R.string.device_update_response_error) + ":" + arg0);
+                        context.getString(XR.string.device_update_response_error) + ":" + arg0);
                 if (PushConnector.DEBUG_LOG) LogEventsUtils.sendLogTextMessage(context,
-                        context.getString(R.string.device_update_response_error) + ":" + arg0);
+                        context.getString(XR.string.device_update_response_error) + ":" + arg0);
                 return true;
             default:
                 return false;
@@ -114,8 +108,8 @@ public class DeviceUpdateHandler extends AsyncHttpResponseHandler {
         Context context = contextHolder.get();
         if (context == null) return;
 
-        if (PushConnector.DEBUG) Log.d(TAG, context.getString(R.string.device_update_response_error) + ":" + error);
-        if (PushConnector.DEBUG_LOG) LogEventsUtils.sendLogTextMessage(context, context.getString(R.string.device_update_response_error) + ":" + error);
+        if (PushConnector.DEBUG) Log.d(TAG, context.getString(XR.string.device_update_response_error) + ":" + error);
+        if (PushConnector.DEBUG_LOG) LogEventsUtils.sendLogTextMessage(context, context.getString(XR.string.device_update_response_error) + ":" + error);
 
         final JSONObject responseJson;
         int code = -1;

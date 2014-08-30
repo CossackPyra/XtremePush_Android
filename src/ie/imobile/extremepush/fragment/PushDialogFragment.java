@@ -1,19 +1,18 @@
 package ie.imobile.extremepush.fragment;
 
-import ie.imobile.extremepush.R;
-import ie.imobile.extremepush.api.LogResponseHandler;
-import ie.imobile.extremepush.api.XtremeRestClient;
-import ie.imobile.extremepush.api.model.PushMessage;
-import ie.imobile.extremepush.util.SharedPrefUtils;
-import ie.imobile.extremepush.util.UrlUtils;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
-
 import com.loopj.android.http.AsyncHttpResponseHandler;
+import ie.imobile.extremepush.api.LogResponseHandler;
+import ie.imobile.extremepush.api.XtremeRestClient;
+import ie.imobile.extremepush.api.model.PushMessage;
+import ie.imobile.extremepush.util.SharedPrefUtils;
+import ie.imobile.extremepush.util.UrlUtils;
+import ie.imobile.extremepush.util.XR;
 
 public final class PushDialogFragment extends DialogFragment {
 
@@ -42,10 +41,10 @@ public final class PushDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle(R.string.push_dialog_title);
+        builder.setTitle(XR.string.push_dialog_title);
         builder.setMessage(pushMessage.alert);
         if (pushMessage.url != null && !TextUtils.isEmpty(pushMessage.url)) {
-            builder.setPositiveButton(R.string.push_dialog_view, new DialogInterface.OnClickListener() {
+            builder.setPositiveButton(XR.string.push_dialog_view, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
                     String serverDeviceId = SharedPrefUtils.getServerDeviceId(getActivity());
                     if (pushMessage.pushActionId != null && serverDeviceId != null) {
@@ -62,7 +61,7 @@ public final class PushDialogFragment extends DialogFragment {
                 }
             });
         }
-        builder.setNegativeButton(R.string.push_dialog_close, new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(XR.string.push_dialog_close, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 String serverDeviceId = SharedPrefUtils.getServerDeviceId(getActivity());
                 if (pushMessage.pushActionId != null && serverDeviceId != null) {

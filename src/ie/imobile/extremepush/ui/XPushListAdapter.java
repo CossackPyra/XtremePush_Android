@@ -1,19 +1,5 @@
 package ie.imobile.extremepush.ui;
 
-import ie.imobile.extremepush.PushConnector;
-import ie.imobile.extremepush.R;
-import ie.imobile.extremepush.api.XtremeRestClient;
-import ie.imobile.extremepush.api.model.PushmessageListItem;
-import ie.imobile.extremepush.util.LogEventsUtils;
-import ie.imobile.extremepush.util.SharedPrefUtils;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -27,8 +13,16 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import com.loopj.android.http.AsyncHttpResponseHandler;
+import ie.imobile.extremepush.PushConnector;
+import ie.imobile.extremepush.api.XtremeRestClient;
+import ie.imobile.extremepush.api.model.PushmessageListItem;
+import ie.imobile.extremepush.util.LogEventsUtils;
+import ie.imobile.extremepush.util.SharedPrefUtils;
+import ie.imobile.extremepush.util.XR;
+
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class XPushListAdapter extends BaseAdapter implements OnClickListener {
 	private ArrayList<PushmessageListItem> items;
@@ -97,12 +91,12 @@ public class XPushListAdapter extends BaseAdapter implements OnClickListener {
 		Boolean read = ((PushmessageListItem) getItem(position)).read;
 
 		if (convertView == null){
-			rowView = LayoutInflater.from(context).inflate(R.layout.xpush_layout_item_view, null);
+			rowView = LayoutInflater.from(context).inflate(XR.layout.xpush_layout_item_view, null);
 			viewHolder = new ViewHolder();
-			viewHolder.name = (TextView) rowView.findViewById(R.id.messageTextView);
-			viewHolder.date = (TextView) rowView.findViewById(R.id.timeTextView);
-			viewHolder.arrow = (TextView) rowView.findViewById(R.id.arrow);
-			viewHolder.bg = (LinearLayout) rowView.findViewById(R.id.bg);
+			viewHolder.name = (TextView) rowView.findViewById(XR.id.messageTextView);
+			viewHolder.date = (TextView) rowView.findViewById(XR.id.timeTextView);
+			viewHolder.arrow = (TextView) rowView.findViewById(XR.id.arrow);
+			viewHolder.bg = (LinearLayout) rowView.findViewById(XR.id.bg);
 			rowView.setTag(viewHolder);
 		}
 

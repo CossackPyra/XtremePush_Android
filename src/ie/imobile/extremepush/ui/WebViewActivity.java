@@ -1,6 +1,5 @@
 package ie.imobile.extremepush.ui;
 
-import ie.imobile.extremepush.R;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
@@ -12,6 +11,7 @@ import android.view.WindowManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageButton;
+import ie.imobile.extremepush.util.XR;
 
 public class WebViewActivity extends Activity {
 
@@ -30,7 +30,7 @@ public class WebViewActivity extends Activity {
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setContentView(R.layout.activity_webview);
+        setContentView(XR.layout.activity_webview);
 
         parseIntent();
 
@@ -45,10 +45,10 @@ public class WebViewActivity extends Activity {
     }
 
     private void initViews() {
-        webView = (WebView) findViewById(R.id.webview_webview);
-        closeButton = (ImageButton) findViewById(R.id.webview_close);
-        shareButton = (ImageButton) findViewById(R.id.webview_share);
-        openInBrowser = (ImageButton) findViewById(R.id.webview_view_in_browser);
+        webView = (WebView) findViewById(XR.id.webview_webview);
+        closeButton = (ImageButton) findViewById(XR.id.webview_close);
+        shareButton = (ImageButton) findViewById(XR.id.webview_share);
+        openInBrowser = (ImageButton) findViewById(XR.id.webview_view_in_browser);
     }
 
     private void setupViews() {

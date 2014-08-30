@@ -1,11 +1,5 @@
 package ie.imobile.extremepush.fragment;
 
-import android.content.Context;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.CheckBox;
-import ie.imobile.extremepush.R;
-import ie.imobile.extremepush.util.LocationAccessHelper;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -13,6 +7,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.DialogFragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.CheckBox;
+import ie.imobile.extremepush.util.LocationAccessHelper;
+import ie.imobile.extremepush.util.XR;
 
 public final class LocationDialogFragment extends DialogFragment {
 
@@ -31,10 +30,10 @@ public final class LocationDialogFragment extends DialogFragment {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
 
-        View dialogView = inflater.inflate(R.layout.location_dialog, null);
-        final CheckBox checkBox = (CheckBox) dialogView.findViewById(R.id.ask_location);
+        View dialogView = inflater.inflate(XR.layout.location_dialog, null);
+        final CheckBox checkBox = (CheckBox) dialogView.findViewById(XR.id.ask_location);
         return builder.setView(dialogView)
-            .setPositiveButton(R.string.location_providers_dialog_positive,
+            .setPositiveButton(XR.string.location_providers_dialog_positive,
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog,
                                         int whichButton) {
@@ -48,7 +47,7 @@ public final class LocationDialogFragment extends DialogFragment {
                                         LocationAccessHelper.START_LOCATION_ACTIVITY_CODE);
                     }
                 })
-            .setNegativeButton(R.string.location_providers_dialog_negative, new DialogInterface.OnClickListener() {
+            .setNegativeButton(XR.string.location_providers_dialog_negative, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     if (buttonClickListener != null && checkBox.isChecked())
