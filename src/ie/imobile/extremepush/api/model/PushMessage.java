@@ -3,6 +3,8 @@ package ie.imobile.extremepush.api.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.HashMap;
+
 public final class PushMessage implements Parcelable {
 
     public String pushActionId;
@@ -11,8 +13,10 @@ public final class PushMessage implements Parcelable {
     public String sound;
     public String url;
     public boolean openInBrowser;
+    public HashMap<String, Object> extra;
 
     public PushMessage() {
+        extra = new HashMap<String, Object>();
     }
 
     private PushMessage(Parcel in) {
@@ -22,6 +26,7 @@ public final class PushMessage implements Parcelable {
         sound = in.readString();
         url = in.readString();
         openInBrowser = in.readByte() == 1 ? true : false;
+        extra = (HashMap) in.readSerializable();
     }
 
     @Override
@@ -37,6 +42,7 @@ public final class PushMessage implements Parcelable {
         dest.writeString(sound);
         dest.writeString(url);
         dest.writeByte((byte) (openInBrowser ? 1 : 0));
+        dest.writeSerializable(extra);
     }
 
     public static final Parcelable.Creator<PushMessage> CREATOR = new Parcelable.Creator<PushMessage>() {
