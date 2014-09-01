@@ -69,7 +69,7 @@ public class PushConnector extends Fragment {
 
         FragmentTransaction ft = fm.beginTransaction();
         	ft.add(pushConnector, FRAGMENT_TAG);
-        ft.commit();
+        ft.commitAllowingStateLoss();
 
         return pushConnector;
     }
