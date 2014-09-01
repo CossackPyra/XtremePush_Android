@@ -100,14 +100,14 @@ public final class GCMIntentService extends GCMBaseIntentService {
             if (!TextUtils.isEmpty(pushMessage.sound)) {
                 try {
                     setupCustomSound(pushMessage.sound);
-                    playSound();
+//                    playSound();
                 } catch (IllegalStateException e) {
                     if (PushConnector.DEBUG) Log.wtf(TAG, e);
                 } catch (IOException e) {
                     throw new RuntimeException("Coudn't find " + pushMessage.sound + " in assets.");
                 }
             } else {
-                playDefaultRingtone();
+//                playDefaultRingtone();
             }
 
             sendBroadcast(new Intent(ACTION_MESSAGE).putExtra(EXTRAS_PUSH_MESSAGE, pushMessage));
@@ -183,8 +183,7 @@ public final class GCMIntentService extends GCMBaseIntentService {
                 		mainActivityName));
 
         // set intent so it does not start a new activity
-        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        notificationIntent.setAction("open activity" + pushMessage.pushActionId);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
         PendingIntent intent = PendingIntent.getActivity(context, 0, notificationIntent, PendingIntent.FLAG_ONE_SHOT);
         mBuilder.setContentIntent(intent);
 
