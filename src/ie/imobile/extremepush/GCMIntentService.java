@@ -100,14 +100,14 @@ public final class GCMIntentService extends GCMBaseIntentService {
             if (!TextUtils.isEmpty(pushMessage.sound)) {
                 try {
                     setupCustomSound(pushMessage.sound);
-//                    playSound();
+                    playSound();
                 } catch (IllegalStateException e) {
                     if (PushConnector.DEBUG) Log.wtf(TAG, e);
                 } catch (IOException e) {
                     throw new RuntimeException("Coudn't find " + pushMessage.sound + " in assets.");
                 }
             } else {
-//                playDefaultRingtone();
+                playDefaultRingtone();
             }
 
             sendBroadcast(new Intent(ACTION_MESSAGE).putExtra(EXTRAS_PUSH_MESSAGE, pushMessage));
